@@ -27,7 +27,7 @@ http://localhost:9000/dataportal/
 password information so you must request it from Deb Stacey
 
 ## Running in docker
-run `docker run -it -p 8000:8000 -v /path/to/secure_rds.py:/app/secure_rds.py gbadsinformatics/keapi`
+run `docker run -d -p 8000:8000 -v /path/to/secure_rds.py:/app/secure_rds.py gbadsinformatics/keapi`
 You can access it at port 8000 of your machine. (change the first '8000' to run the api on a different port)
 
 
