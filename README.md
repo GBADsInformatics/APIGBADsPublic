@@ -26,6 +26,11 @@ http://localhost:9000/dataportal/
 - You will need a file called secure_rds.py to run the RDS commands but that file contains
 password information so you must request it from Deb Stacey
 
+## Running in docker
+run `docker run -it -p 8000:8000 -v /path/to/secure_rds.py:/app/secure_rds.py gbadsinformatics/keapi`
+You can access it at port 8000 of your machine. (change the first '8000' to run the api on a different port)
+
+
 ## How to Use the Postman Test Runner
 It's a postman collection that runs in the postman application. It can be downloaded from
 https://www.postman.com

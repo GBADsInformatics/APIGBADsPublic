@@ -1,0 +1,6 @@
+fastapi
+uvicorn
+pandas
+typing
+pathlib
+psycopg2
