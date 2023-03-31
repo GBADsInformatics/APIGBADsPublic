@@ -5,7 +5,7 @@ To install and run this application you need to install FastAPI and other Python
  -  pip (or pip3) install fastapi
  -  pip (or pip3) install uvicorn
  -  pip (or pip3) install pandas
- -  pip (or pip3) install typing 
+ -  pip (or pip3) install typing
  -  pip (or pip3) install pathlib
  -  pip (or pip3) install psycopg2
 
@@ -20,24 +20,24 @@ It is good to use nohup to ensure that the process is not interrupted.
 To access the API in your web browser start with the command:
 http://localhost:9000/dataportal/
 
-Improvements that need to be made:
-1. Improve the logging
-2. Clean up file created by the API
-3. Send error messages to the user and not just to the console
-4. Check to make sure that sql injection is not a problem
-5. Clean up code and document
-6. Add * to fields to generate all fields for the general query capability
-   - fields=* does work but it does not retrieve the field names
-   - need to add a subroutine to fetch field names - the following code will do this:
-         
-cur.execute(f"""SELECT * FROM {table_name} ;""")
-         
-rows = cur.fetchone()
-         
-column_names = [desc[0] for desc in cur.description]
 
 ## Notes
 
 - You will need a file called secure_rds.py to run the RDS commands but that file contains
 password information so you must request it from Deb Stacey
 
+## How to Use the Postman Test Runner
+It's a postman collection that runs in the postman application. It can be downloaded from
+https://www.postman.com
+
+Once installed, run the application and select the import button in the top right of the application. Select the postman collection .json file.
+
+To run it select the collection under the 'Collections' tab and then select the 'Run' button in the top right of the application. This will run all the tests in the collection.
+
+** Note this is basic and just ensures that the APIs are running and arent failing due to a code error. It does not test the data returned by the APIs. **
+
+## Example Calls From each API
+1. ```http://localhost:9000/GBADsTables/public?format=html```
+2. ```http://localhost:9000/GBADsTable/public?table_name=livestock_production_faostat&format=html```
+3. ```http://localhost:9000/GBADsPublicQuery/livestock_production_faostat?fields=country,year,species,population&query=year=2017%20AND%20species=%27Goats%27&format=html```
+4. ```http://localhost:9000/GBADsLivestockPopulation/oie?year=*&country=Canada&species=Cattle&format=html```

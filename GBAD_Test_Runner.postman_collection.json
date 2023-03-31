@@ -1,0 +1,666 @@
+{
+	"info": {
+		"_postman_id": "02014dda-0fe8-4d98-847e-0bd169343e6b",
+		"name": "GBAD",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "23093976"
+	},
+	"item": [
+		{
+			"name": "home",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:9000/GBADsTables/public?format=html",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9000",
+					"path": [
+						"GBADsTables",
+						"public"
+					],
+					"query": [
+						{
+							"key": "format",
+							"value": "html"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "home/csv",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:9000/GBADsTables/public?format=csv",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9000",
+					"path": [
+						"GBADsTables",
+						"public"
+					],
+					"query": [
+						{
+							"key": "format",
+							"value": "csv"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GBADsTables/text",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:9000/GBADsTables/public?format=text",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9000",
+					"path": [
+						"GBADsTables",
+						"public"
+					],
+					"query": [
+						{
+							"key": "format",
+							"value": "text"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GBADsTables/html",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:9000/GBADsTables/public?format=html",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9000",
+					"path": [
+						"GBADsTables",
+						"public"
+					],
+					"query": [
+						{
+							"key": "format",
+							"value": "html"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GBADsTable/html",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:9000/GBADsTable/public?table_name=livestock_production_faostat&format=html",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9000",
+					"path": [
+						"GBADsTable",
+						"public"
+					],
+					"query": [
+						{
+							"key": "table_name",
+							"value": "livestock_production_faostat"
+						},
+						{
+							"key": "format",
+							"value": "html"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GBADsTable/text",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:9000/GBADsTable/public?table_name=livestock_production_faostat&format=text",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9000",
+					"path": [
+						"GBADsTable",
+						"public"
+					],
+					"query": [
+						{
+							"key": "table_name",
+							"value": "livestock_production_faostat"
+						},
+						{
+							"key": "format",
+							"value": "text"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GBADsPublicQuery/fields=*/year=2017/format=html",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:9000/GBADsPublicQuery/livestock_production_faostat?fields=*&query=year=2017&format=html",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9000",
+					"path": [
+						"GBADsPublicQuery",
+						"livestock_production_faostat"
+					],
+					"query": [
+						{
+							"key": "fields",
+							"value": "*"
+						},
+						{
+							"key": "query",
+							"value": "year=2017"
+						},
+						{
+							"key": "format",
+							"value": "html"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GBADsPublicQuery/fields=*/year=2017/format=text",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:9000/GBADsPublicQuery/livestock_production_faostat?fields=*&query=year=2017&format=text",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9000",
+					"path": [
+						"GBADsPublicQuery",
+						"livestock_production_faostat"
+					],
+					"query": [
+						{
+							"key": "fields",
+							"value": "*"
+						},
+						{
+							"key": "query",
+							"value": "year=2017"
+						},
+						{
+							"key": "format",
+							"value": "text"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GBADsPublicQuery/fields=country/year=2017/format=text",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:9000/GBADsPublicQuery/livestock_production_faostat?fields=country&query=year=2017&format=html",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9000",
+					"path": [
+						"GBADsPublicQuery",
+						"livestock_production_faostat"
+					],
+					"query": [
+						{
+							"key": "fields",
+							"value": "country"
+						},
+						{
+							"key": "query",
+							"value": "year=2017"
+						},
+						{
+							"key": "format",
+							"value": "html"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GBADsPublicQuery/orderby",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:9000/GBADsPublicQuery/livestock_production_faostat?query=year=2017&format=html&fields=country, species",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9000",
+					"path": [
+						"GBADsPublicQuery",
+						"livestock_production_faostat"
+					],
+					"query": [
+						{
+							"key": "query",
+							"value": "year=2017"
+						},
+						{
+							"key": "format",
+							"value": "html"
+						},
+						{
+							"key": "order",
+							"value": "species",
+							"disabled": true
+						},
+						{
+							"key": "fields",
+							"value": "country, species"
+						},
+						{
+							"key": "join",
+							"value": "http://localhost:9000/GBADsPublicQuery/livestock_production_faostat?query=year=2016&format=text",
+							"disabled": true
+						},
+						{
+							"key": "count",
+							"value": "yes",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GBADsLivestockPopulation/html",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:9000/GBADsLivestockPopulation/oie?year=2005&country=Canada&species=Cattle&format=html",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9000",
+					"path": [
+						"GBADsLivestockPopulation",
+						"oie"
+					],
+					"query": [
+						{
+							"key": "year",
+							"value": "2005"
+						},
+						{
+							"key": "country",
+							"value": "Canada"
+						},
+						{
+							"key": "species",
+							"value": "Cattle"
+						},
+						{
+							"key": "format",
+							"value": "html"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GBADsLivestockPopulation/csv",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:9000/GBADsLivestockPopulation/oie?year=2005&country=Canada&species=Cattle&format=csv",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9000",
+					"path": [
+						"GBADsLivestockPopulation",
+						"oie"
+					],
+					"query": [
+						{
+							"key": "year",
+							"value": "2005"
+						},
+						{
+							"key": "country",
+							"value": "Canada"
+						},
+						{
+							"key": "species",
+							"value": "Cattle"
+						},
+						{
+							"key": "format",
+							"value": "csv"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GBADsLivestockPopulation/html/year=*",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:9000/GBADsLivestockPopulation/oie?year=*&country=Canada&species=Cattle&format=html",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9000",
+					"path": [
+						"GBADsLivestockPopulation",
+						"oie"
+					],
+					"query": [
+						{
+							"key": "year",
+							"value": "*"
+						},
+						{
+							"key": "country",
+							"value": "Canada"
+						},
+						{
+							"key": "species",
+							"value": "Cattle"
+						},
+						{
+							"key": "format",
+							"value": "html"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GBADsLivestockPopulation/html/year != *",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:9000/GBADsLivestockPopulation/oie?year=2005&country=Canada&species=Cattle&format=html",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9000",
+					"path": [
+						"GBADsLivestockPopulation",
+						"oie"
+					],
+					"query": [
+						{
+							"key": "year",
+							"value": "2005"
+						},
+						{
+							"key": "country",
+							"value": "Canada"
+						},
+						{
+							"key": "species",
+							"value": "Cattle"
+						},
+						{
+							"key": "format",
+							"value": "html"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GBADsLivestockPopulation/html/country == *",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:9000/GBADsLivestockPopulation/oie?year=2005&country=*&species=Cattle&format=html",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9000",
+					"path": [
+						"GBADsLivestockPopulation",
+						"oie"
+					],
+					"query": [
+						{
+							"key": "year",
+							"value": "2005"
+						},
+						{
+							"key": "country",
+							"value": "*"
+						},
+						{
+							"key": "species",
+							"value": "Cattle"
+						},
+						{
+							"key": "format",
+							"value": "html"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GBADsLivestockPopulation/html/country != *",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:9000/GBADsLivestockPopulation/oie?year=2005&country=Canada&species=Cattle&format=html",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9000",
+					"path": [
+						"GBADsLivestockPopulation",
+						"oie"
+					],
+					"query": [
+						{
+							"key": "year",
+							"value": "2005"
+						},
+						{
+							"key": "country",
+							"value": "Canada"
+						},
+						{
+							"key": "species",
+							"value": "Cattle"
+						},
+						{
+							"key": "format",
+							"value": "html"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GBADsLivestockPopulation/html/FAOSTAT",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:9000/GBADsLivestockPopulation/faostat?year=2005&country=Canada&species=Cattle&format=html",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9000",
+					"path": [
+						"GBADsLivestockPopulation",
+						"faostat"
+					],
+					"query": [
+						{
+							"key": "year",
+							"value": "2005"
+						},
+						{
+							"key": "country",
+							"value": "Canada"
+						},
+						{
+							"key": "species",
+							"value": "Cattle"
+						},
+						{
+							"key": "format",
+							"value": "html"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GBADsLivestockPopulation/html/FAOSTAT /species==*",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:9000/GBADsLivestockPopulation/oie?year=2005&country=Canada&species=*&format=html",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9000",
+					"path": [
+						"GBADsLivestockPopulation",
+						"oie"
+					],
+					"query": [
+						{
+							"key": "year",
+							"value": "2005"
+						},
+						{
+							"key": "country",
+							"value": "Canada"
+						},
+						{
+							"key": "species",
+							"value": "*"
+						},
+						{
+							"key": "format",
+							"value": "html"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "fields",
+			"value": "country"
+		}
+	]
+}
