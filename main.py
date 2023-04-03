@@ -209,7 +209,7 @@ async def get_db_query( table_name: str,
         querystr = rds.setCountQuery ( table_name, fields, query, joinstring )
 
 #debugging
-    print ( query )
+    # print ( query )
 
     # Format the query into the html and return string
     logging.info("Formatting the results into a file and reutrn string")
@@ -362,7 +362,7 @@ async def get_population ( data_source: str,
     file_name = table_name+".csv"
     f = open(file_name, "w")
     print ( fields, file=f  )
-    print("returnedQuery ",returnedQuery)
+    # print("returnedQuery ",returnedQuery)
 
     logging.info("Adding the returned data to the htmlstring and CSV file")
     for field in returnedQuery:
