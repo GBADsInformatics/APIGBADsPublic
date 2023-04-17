@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Response, BackgroundTasks
+from fastapi import FastAPI, Response, BackgroundTasks, APIRouter
 from fastapi.responses import FileResponse, HTMLResponse
 from fastapi.responses import PlainTextResponse
 from typing import Optional
@@ -11,6 +11,12 @@ import os
 import logging
 
 app = FastAPI()
+router = None
+
+if "BASE_URL" in os.environ:
+    router = APIRouter(prefix=os.environ["BASE_URL"])
+else:
+    router = APIRouter()
 
 #Function to removed the created CSV/HTML file
 def remove_file(path):
@@ -27,7 +33,7 @@ logging.basicConfig(filename="logs/errors.txt", level=logging.ERROR, format="%(a
 
 
 #Used to access the data portal screen
-@app.get("/dataportal/")
+@router.get("/dataportal/")
 def home():
     logging.info("Home page accessed")
     html_string = Path('dataPortalDocumentation.html').read_text()
@@ -35,7 +41,7 @@ def home():
 
 
 #Used to access the list of all tables
-@app.get("/GBADsTables/{public}")
+@router.get("/GBADsTables/{public}")
 async def get_public_tables( public: str, 
                                 format: Optional[str] = "html"):
     logging.info("GBADsTables/{public} called")
@@ -89,7 +95,7 @@ async def get_public_tables( public: str,
         return HTMLResponse(htmlstring)
 
 
-@app.get("/GBADsTable/{public}")
+@router.get("/GBADsTable/{public}")
 async def get_public_table_fields( public: str, 
                                     table_name: str, 
                                     format: Optional[str] = "html" ):
@@ -138,7 +144,7 @@ async def get_public_table_fields( public: str,
         return PlainTextResponse(retstring)
 
 
-@app.get("/GBADsPublicQuery/{table_name}")
+@router.get("/GBADsPublicQuery/{table_name}")
 async def get_db_query( table_name: str,
                         fields: str,
                         query: str,
@@ -252,7 +258,7 @@ async def get_db_query( table_name: str,
         return FileResponse(file_name,filename=file_name)
 
 
-@app.get("/GBADsLivestockPopulation/{data_source}")
+@router.get("/GBADsLivestockPopulation/{data_source}")
 async def get_population ( data_source: str,
                             format: str,
                             year: Optional[str] = "*",
@@ -401,6 +407,9 @@ async def get_population ( data_source: str,
         htmlstring = rds.generateHTMLErrorMessage("Invalid format. Please use html or file.")
         return HTMLResponse(htmlstring)
 
+
+# This router allows a custom path to be used for the API
+app.include_router(router)
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=9000)
