@@ -13,7 +13,7 @@ This is used to view the data portal, it gives more info on the APIs and example
 
 #### How to run
 You can access this API by going to either
-1. http://gbadske.org:9000/dataportal/
+1. https://gbadske.org/api/dataportal/
 
 or if you're running it locally
 
@@ -37,7 +37,7 @@ This API returns a list of tables in the GBADs database.  It is used by the data
 #### How to run
 
 You can access this API by going to either
-1. http://gbadske.org:9000/GBADsTables/public?format=html
+1. https://gbadske.org/api/GBADsTables/public?format=html
 
 or if you're running it locally
 
@@ -74,7 +74,7 @@ This API returns the contents of a specific table in the GBADs database.  It is 
 
 #### How to run
 You can access this API by going to either
-1. http://gbadske.org:9000/GBADsTable/public?table_name=livestock_production_faostat&format=html
+1. https://gbadske.org/api/GBADsTable/public?table_name=livestock_production_faostat&format=html
 
 or if you're running it locally
 
@@ -106,7 +106,7 @@ This API returns the contents of a specific query performed on a specific table 
 
 #### How to run
 You can access this API by going to either
-1. http://gbadske.org:9000/GBADsPublicQuery/livestock_production_faostat?fields=country,year,species,population&query=year=2017%20AND%20species=%27Goats%27&format=html
+1. https://gbadske.org/api/GBADsPublicQuery/livestock_production_faostat?fields=country,year,species,population&query=year=2017%20AND%20species=%27Goats%27&format=html
 
 or if you're running it locally
 
@@ -120,7 +120,7 @@ or if you're running it locally
     1. Use by setting fields = column name. If you don't know the column names you can use '*' instead to return all columns.
 3. query - this is the query you want to run on the table (ex. Query: year=2017 AND species='Goats').
     1. The query is in the same format as a standard SQL query. Done by setting query tag equal to the query you want. Use '%20' as placeholders for spaces. An example of a query is as follows:
-http://gbadske.org:9000/GBADsPublicQuery/livestock_production_faostat?fields=country,year,species,population&query=year=2017%20AND%20species=%27Goats%27AND%20species=%27asses%27&format=html. Notice in the query how around 'AND' statements there is a %20 and around strings for query terms there's %27. When string value in a query is besides an AND or OR statement, the %27 from the string takes presedence over the %20 from the AND or OR.
+https://gbadske.org/api/GBADsPublicQuery/livestock_production_faostat?fields=country,year,species,population&query=year=2017%20AND%20species=%27Goats%27AND%20species=%27asses%27&format=html. Notice in the query how around 'AND' statements there is a %20 and around strings for query terms there's %27. When string value in a query is besides an AND or OR statement, the %27 from the string takes presedence over the %20 from the AND or OR.
 
 **Optional Parameters**
 
@@ -156,7 +156,7 @@ This API returns the population of livestock in a country for a given year.
 
 #### How to run
 You can access this API by going to either
-1. http://gbadske.org:9000/GBADsLivestockPopulation/faostat?year=2017&country=Canada&species=*&format=file
+1. https://gbadske.org/api/GBADsLivestockPopulation/faostat?year=2017&country=Canada&species=*&format=file
 
 or if you're running it locally
 
