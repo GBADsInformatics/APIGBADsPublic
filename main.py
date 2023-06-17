@@ -10,7 +10,7 @@ import pandas as pd
 import os
 import logging
 
-app = FastAPI()
+app = FastAPI(docs_url=os.environ.get('BASE_URL', '') + "/docs")
 router = None
 
 if "BASE_URL" in os.environ:
