@@ -33,7 +33,7 @@ logging.basicConfig(filename="logs/errors.txt", level=logging.ERROR, format="%(a
 
 
 #Used to access the data portal screen
-@router.get("/dataportal/")
+@router.get("/dataportal/", tags=["Knowledge Engine"])
 def home():
     logging.info("Home page accessed")
     html_string = Path('dataPortalDocumentation.html').read_text()
@@ -41,7 +41,7 @@ def home():
 
 
 #Used to access the list of all tables
-@router.get("/GBADsTables/{public}")
+@router.get("/GBADsTables/{public}", tags=["Knowledge Engine"])
 async def get_public_tables( public: str, 
                                 format: Optional[str] = "html"):
     logging.info("GBADsTables/{public} called")
@@ -95,7 +95,7 @@ async def get_public_tables( public: str,
         return HTMLResponse(htmlstring)
 
 
-@router.get("/GBADsTable/{public}")
+@router.get("/GBADsTable/{public}", tags=["Knowledge Engine"])
 async def get_public_table_fields( public: str, 
                                     table_name: str, 
                                     format: Optional[str] = "html" ):
@@ -144,7 +144,7 @@ async def get_public_table_fields( public: str,
         return PlainTextResponse(retstring)
 
 
-@router.get("/GBADsPublicQuery/{table_name}")
+@router.get("/GBADsPublicQuery/{table_name}", tags=["Knowledge Engine"])
 async def get_db_query( table_name: str,
                         fields: str,
                         query: str,
@@ -258,7 +258,7 @@ async def get_db_query( table_name: str,
         return FileResponse(file_name,filename=file_name)
 
 
-@router.get("/GBADsLivestockPopulation/{data_source}")
+@router.get("/GBADsLivestockPopulation/{data_source}", tags=["Knowledge Engine"])
 async def get_population ( data_source: str,
                             format: str,
                             year: Optional[str] = "*",
@@ -407,6 +407,13 @@ async def get_population ( data_source: str,
         htmlstring = rds.generateHTMLErrorMessage("Invalid format. Please use html or file.")
         return HTMLResponse(htmlstring)
 
+@router.put('/slack/approve/{comment_id}', tags=["Internal Slack"])
+def slack_approve_comment(comment_id: str, authorization_token: str):
+    return None
+
+@router.put('/slack/deny/{comment_id}', tags=["Internal Slack"])
+def slack_deny_comment(comment_id: str, authorization_token: str):
+    return None
 
 # This router allows a custom path to be used for the API
 app.include_router(router)
