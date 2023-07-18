@@ -9,6 +9,10 @@ import rds_functions as rds
 import pandas as pd
 import os
 import logging
+import boto3
+import newS3TicketLib as s3f
+import jwt
+from datetime import datetime
 
 app = FastAPI(docs_url=os.environ.get('BASE_URL', '') + "/docs", openapi_url=os.environ.get('BASE_URL', '') + "/openapi.json")
 router = None
@@ -409,7 +413,82 @@ async def get_population ( data_source: str,
 
 @router.put('/slack/approve/{comment_id}', tags=["Internal Slack"])
 def slack_approve_comment(comment_id: str, authorization_token: str):
-    return None
+    logging.info("/slack/approve called")
+    #
+    # Information for the task
+    #
+    desired_task = "s3Move"
+    desired_app = "gbads-slackbot-approve"
+    #
+    # Read in the public key
+    #
+    key_filename = desired_app+"key.pub"
+    try:
+        fptr = open(key_filename, "rb")
+        key = fptr.read()
+        fptr.close()
+    except:
+        logging.error("Bad information about public key filename")
+        htmlMsg = rds.generateHTMLErrorMessage("Bad information about public key filename")
+        return HTMLResponse(htmlMsg)
+    #
+    # Decode the token and check for validity
+    #
+    try:
+        decoded = jwt.decode (
+            authorization_token,
+            key,
+            algorithms=["RS256"]
+        )
+        logging.info("Valid JSON Web Token")
+    except:
+        logging.error("Invalid JSON Web Token")
+        htmlMsg = rds.generateHTMLErrorMessage("Invalid JSON Web Token")
+        return HTMLResponse(htmlMsg)
+    #
+    # Check to see if the JWT payload is valid
+    #
+    if decoded['task'] != desired_task:
+        logging.error("Invalid task in JSON Web Token payload")
+        htmlMsg = rds.generateHTMLErrorMessage("Invalid task in JSON Web Token payload")
+        return HTMLResponse(htmlMsg)
+    else:
+        logging.info("JWT task = "+decoded['task'])
+    if decoded["app"] != desired_app:
+        logging.error("Invalid app in JSON Web Token payload")
+        htmlMsg = rds.generateHTMLErrorMessage("Invalid app in JSON Web Token payload")
+        return HTMLResponse(htmlMsg)
+    else:
+        logging.info("JWT app = "+decoded['app'])
+    dateStamp = pd.to_datetime(int(decoded["iat"]), utc=True, unit='s')
+    logging.info("JWT issued on "+str(dateStamp))
+    access = decoded["access"]
+    secret = decoded["secret"]
+    #
+    #  Access AWS Credentials and establish session as a client and resource
+    #
+    s3_client = s3f.credentials_client ( access, secret )
+    s3_resource = s3f.credentials_resource ( access, secret )
+    #
+    # To move a file: 1) copy the file to the given directory
+    #
+    bucket = "gbads-comments"
+    srcFolder = "underreview/"
+    destFolder = "approved/"
+    sourceObj = srcFolder+comment_id
+    destObj = destFolder+comment_id
+    ret = s3f.s3Copy ( s3_client, bucket, sourceObj, destObj )
+    #
+    # Next: 2) delete the original file
+    #
+    if ret == 0:
+        ret = s3f.s3Delete ( s3_client, bucket, sourceObj )
+        logging.info("S3 Move successful")
+        return HTMLResponse(htmlMsg)
+    else:
+        logging.error("S3 Copy not successful")
+        htmlMsg = rds.generateHTMLErrorMessage("S3 Copy not successful")
+        return HTMLResponse(htmlMsg)
 
 @router.put('/slack/deny/{comment_id}', tags=["Internal Slack"])
 def slack_deny_comment(comment_id: str, authorization_token: str):

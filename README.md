@@ -31,8 +31,17 @@ To run it select the collection under the 'Collections' tab and then select the 
 
 ** Note this is basic and just ensures that the APIs are running and arent failing due to a code error. It does not test the data returned by the APIs. **
 
+### S3 Additions
+Now you can do actions on the GBADs S3 Storage:
+   1. /slack/approve - move file from underreview/ to approved/ - for the Comments Slackbot system
+   2. /slack/deny - move file from underreview/ to notapproved/ - for the Comments Slackbot system
+   3. /slack/download - download file from S3 storage to local storage - To Be Developed
+   4. /slack/upload - upload file from local storage to S3 storage- To Be Developed
+
 #### Example Calls From each API
 1. ```http://localhost:9000/GBADsTables/public?format=html```
 2. ```http://localhost:9000/GBADsTable/public?table_name=livestock_production_faostat&format=html```
 3. ```http://localhost:9000/GBADsPublicQuery/livestock_production_faostat?fields=country,year,species,population&query=year=2017%20AND%20species=%27Goats%27&format=html```
 4. ```http://localhost:9000/GBADsLivestockPopulation/oie?year=*&country=Canada&species=Cattle&format=html```
+5. ```http://localhost:9000/Slack/approve?comment_id=%272023-06-22 12:05:21.077294.json%27&authorization_token=lsjlsdfjaljdflajsdfljalsdfjlad```
+
