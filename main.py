@@ -411,8 +411,8 @@ async def get_population ( data_source: str,
         htmlstring = rds.generateHTMLErrorMessage("Invalid format. Please use html or file.")
         return HTMLResponse(htmlstring)
 
-@router.put('/slackApprove/{state}', tags=["Internal Slack"])
-def slack_approve_comment(state: str, comment_id: str, authorization_token: str):
+@router.put('/slack/approve/{app}', tags=["Internal Slack"])
+def slack_approve_comment(app: str, comment_id: str, authorization_token: str):
     logging.info("/slack/approve called")
     #
     # Information for the task
