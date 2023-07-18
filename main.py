@@ -490,9 +490,10 @@ def slack_approve_comment(app: str, comment_id: str, authorization_token: str):
         htmlMsg = rds.generateHTMLErrorMessage("S3 Copy not successful")
         return HTMLResponse(htmlMsg)
 
-@router.put('/slack/deny/{comment_id}', tags=["Internal Slack"])
-def slack_deny_comment(comment_id: str, authorization_token: str):
-    return None
+@router.put('/slack/deny/{app}', tags=["Internal Slack"])
+def slack_deny_comment(app: str, comment_id: str, authorization_token: str):
+    logging.info("slack deny")
+    return 0
 
 # This router allows a custom path to be used for the API
 app.include_router(router)
