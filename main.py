@@ -493,7 +493,8 @@ def slack_approve_comment(app: str, comment_id: str, authorization_token: str):
 @router.put('/slack/deny/{app}', tags=["Internal Slack"])
 def slack_deny_comment(app: str, comment_id: str, authorization_token: str):
     logging.info("slack deny")
-    return 0
+    html_string = Path('dataPortalDocumentation.html').read_text()
+    return HTMLResponse(html_string)
 
 # This router allows a custom path to be used for the API
 app.include_router(router)
