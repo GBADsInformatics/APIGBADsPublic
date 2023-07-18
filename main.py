@@ -484,7 +484,7 @@ def slack_approve_comment(app: str, comment_id: str, authorization_token: str):
     if ret == 0:
         ret = s3f.s3Delete ( s3_client, bucket, sourceObj )
         logging.info("S3 Move successful")
-        return HTMLResponse(htmlMsg)
+        return 0
     else:
         logging.error("S3 Copy not successful")
         htmlMsg = rds.generateHTMLErrorMessage("S3 Copy not successful")
