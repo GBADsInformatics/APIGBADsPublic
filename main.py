@@ -411,10 +411,8 @@ async def get_population ( data_source: str,
         htmlstring = rds.generateHTMLErrorMessage("Invalid format. Please use html or file.")
         return HTMLResponse(htmlstring)
 
-@router.get("/SlackComments/{public}", tags=["Knowledge Engine"])
-async def put_slack_comments( public: str,
-                              format: Optional[str] = "html"):
-    logging.info("SlackComments/{public} called")
+@router.get("/SlackComments/", tags=["Knowledge Engine"])
+async def put_slack_comments():
     html_string = Path('dataPortalDocumentation.html').read_text()
     return HTMLResponse(html_string)
 
