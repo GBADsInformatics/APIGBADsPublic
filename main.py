@@ -413,13 +413,13 @@ async def get_population ( data_source: str,
 
 
 @router.post("/slack/approve/{comment_id}", tags=["Internal Slack"])
-def slack_approve_comment(comment_id: str, authorization_token: str):
+async def slack_approve_comment(comment_id: str, authorization_token: str):
     logging.info("/slack/approve called")
     #
     # Information for the task
     #
     desired_task = "s3Move"
-    desired_app = "gbads-slackbot-approve"
+    desired_app = "slack-approve"
     #
     # Read in the public key
     #
