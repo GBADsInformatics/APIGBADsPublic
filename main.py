@@ -499,8 +499,7 @@ async def slack_approve_comment(comment_id: str, authorization_token: str):
 @router.put("/slack/deny/{comment_id}", tags=["Internal Slack"])
 def slack_deny_comment(comment_id: str, authorization_token: str):
     logging.info("S3 Deny successful")
-    htmlstring = "<html><body><H3>GBADs S3 Slack Approve Comment</h3></body></html>"
-    return HTMLResponse(htmlstring)
+    return 0
 
 # This router allows a custom path to be used for the API
 app.include_router(router)
