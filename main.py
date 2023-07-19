@@ -460,7 +460,15 @@ async def slack_approve_comment(comment_id: str, authorization_token: str):
     #  Access AWS Credentials and establish session as a client and resource
     #
     s3_client = s3f.credentials_client ( access, secret )
+    if s3_client == -1:
+        logging.error("Cannot connect to S3 as client")
+        htmlMsg = rds.generateHTMLErrorMessage("Cannot connect to S3 as client: "+access+" and "+secret)
+        return HTMLResponse(htmlMsg)
     s3_resource = s3f.credentials_resource ( access, secret )
+    if s3_resource == -1:
+        logging.error("Cannot connect to S3 as resource")
+        htmlMsg = rds.generateHTMLErrorMessage("Cannot connect to S3 as resource: "+access+" and "+secret)
+        return HTMLResponse(htmlMsg)
     #
     # To move a file: 1) copy the file to the given directory
     #
