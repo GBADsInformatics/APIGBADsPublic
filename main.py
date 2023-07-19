@@ -427,6 +427,8 @@ async def slack_approve_comment(comment_id: str, authorization_token: str):
         fptr = open(key_filename, "rb")
         key = fptr.read()
         fptr.close()
+        htmlMsg = rds.generateHTMLErrorMessage("Good information about public key filename")
+        return HTMLResponse(htmlMsg)
     except:
         logging.error("Bad information about public key filename")
         htmlMsg = rds.generateHTMLErrorMessage("Bad information about public key filename")
