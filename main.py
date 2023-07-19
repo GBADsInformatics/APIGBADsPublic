@@ -411,7 +411,7 @@ async def get_population ( data_source: str,
         htmlstring = rds.generateHTMLErrorMessage("Invalid format. Please use html or file.")
         return HTMLResponse(htmlstring)
 
-@router.put('/slack/approve/{comment_id}', tags=["Internal Slack"])
+@router.put("/slack/approve/{comment_id}", tags=["Internal Slack"])
 def slack_approve_comment(comment_id: str, authorization_token: str):
     logging.info("/slack/approve called")
     #
@@ -490,7 +490,7 @@ def slack_approve_comment(comment_id: str, authorization_token: str):
         htmlMsg = rds.generateHTMLErrorMessage("S3 Copy not successful")
         return HTMLResponse(htmlMsg)
 
-@router.put('/slackDeny/{comment_id}', tags=["Internal Slack"])
+@router.put("/slack/deny/{comment_id}", tags=["Internal Slack"])
 def slack_deny_comment(comment_id: str, authorization_token: str):
     logging.info("slack deny")
     html_string = Path('dataPortalDocumentation.html').read_text()
