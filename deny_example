@@ -1,0 +1,12 @@
+curl -X 'PUT' \
+  'https://gbadske.org/api/slack/deny/2023-07-05%2007%3A44%3A23.314938.json?authorization_token=eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcHAiOiJzbGFjay1kZW55IiwiYWNjZXNzIjoiQUtJQVE3NktFWUlWUVJGSTdJTzYiLCJzZWNyZXQiOiJKUFRXZkkzWGtHM1ZjdFlqQjFXMi8vTVZoRG1ZQnpkTjMzNFgwRDVGIn0.ZvARvW1r7vS21LVpNBgtRbbkpGK4Zey9M5tIlORi80fgVjwWAP1g8iF2U88T0YIeWsFh06seN4iOp1BKkr3BWA' \
+  -H 'accept: application/json'
+<html><body><H3>GBADs S3 Slack Deny Comment</h3></body></html>%
+
+https://gbadske.org/api/slack/deny/2023-07-05%2007%3A44%3A23.314938.json?authorization_token=eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcHAiOiJzbGFjay1kZW55IiwiYWNjZXNzIjoiQUtJQVE3NktFWUlWUVJGSTdJTzYiLCJzZWNyZXQiOiJKUFRXZkkzWGtHM1ZjdFlqQjFXMi8vTVZoRG1ZQnpkTjMzNFgwRDVGIn0.ZvARvW1r7vS21LVpNBgtRbbkpGK4Zey9M5tIlORi80fgVjwWAP1g8iF2U88T0YIeWsFh06seN4iOp1BKkr3BWA
+
+curl -X 'PUT' \
+  'https://gbadske.org/api/slack/approve/2023-07-05%2007%3A44%3A23.314938.json?authorization_token=eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcHAiOiJzbGFjay1hcHByb3ZlIiwiYWNjZXNzIjoiQUtJQVE3NktFWUlWUVJGSTdJTzYiLCJzZWNyZXQiOiJKUFRXZkkzWGtHM1ZjdFlqQjFXMi8vTVZoRG1ZQnpkTjMzNFgwRDVGIn0.NpupnN_86-WCyv-XlF72yl6OygyJnfAyHGDfloCQ-ORYz9RgKmdquXCkmYiKWprNn7SBpgoEAMOqBkkeopZ4nw' \
+  -H 'accept: application/json'
+
+
