@@ -411,13 +411,9 @@ async def get_population ( data_source: str,
         htmlstring = rds.generateHTMLErrorMessage("Invalid format. Please use html or file.")
         return HTMLResponse(htmlstring)
 
-@router.get("/SlackComments/", tags=["Knowledge Engine"])
-async def put_slack_comments():
-    html_string = Path('dataPortalDocumentation.html').read_text()
-    return HTMLResponse(html_string)
 
 @router.put("/slack/approve/{comment_id}", tags=["Internal Slack"])
-async def slack_approve_comment(comment_id: str, authorization_token: str):
+def slack_approve_comment(comment_id: str, authorization_token: str):
     logging.info("/slack/approve called")
     #
     # Information for the task
@@ -489,17 +485,15 @@ async def slack_approve_comment(comment_id: str, authorization_token: str):
     if ret == 0:
         ret = s3f.s3Delete ( s3_client, bucket, sourceObj )
         logging.info("S3 Move successful")
-        return 0
+        return NONE
     else:
         logging.error("S3 Copy not successful")
         htmlMsg = rds.generateHTMLErrorMessage("S3 Copy not successful")
         return HTMLResponse(htmlMsg)
 
 @router.put("/slack/deny/{comment_id}", tags=["Internal Slack"])
-async def slack_deny_comment(comment_id: str, authorization_token: str):
-    logging.info("slack deny")
-    html_string = Path('dataPortalDocumentation.html').read_text()
-    return HTMLResponse(html_string)
+def slack_deny_comment(comment_id: str, authorization_token: str):
+    return NONE
 
 # This router allows a custom path to be used for the API
 app.include_router(router)
