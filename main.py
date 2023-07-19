@@ -427,8 +427,6 @@ async def slack_approve_comment(comment_id: str, authorization_token: str):
         fptr = open(key_filename, "rb")
         key = fptr.read()
         fptr.close()
-        htmlMsg = rds.generateHTMLErrorMessage("Good information about public key filename")
-        return HTMLResponse(htmlMsg)
     except:
         logging.error("Bad information about public key filename")
         htmlMsg = rds.generateHTMLErrorMessage("Bad information about public key filename")
@@ -486,7 +484,9 @@ async def slack_approve_comment(comment_id: str, authorization_token: str):
     if ret == 0:
         ret = s3f.s3Delete ( s3_client, bucket, sourceObj )
         logging.info("S3 Move successful")
-        return NONE
+        r
+        html_string = Path('s3ApproveResponse.html').read_text()
+        return HTMLResponse(html_string)
     else:
         logging.error("S3 Copy not successful")
         htmlMsg = rds.generateHTMLErrorMessage("S3 Copy not successful")
