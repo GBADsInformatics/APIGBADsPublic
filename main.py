@@ -484,7 +484,6 @@ async def slack_approve_comment(comment_id: str, authorization_token: str):
     if ret == 0:
         ret = s3f.s3Delete ( s3_client, bucket, sourceObj )
         logging.info("S3 Move successful")
-        r
         html_string = Path('s3ApproveResponse.html').read_text()
         return HTMLResponse(html_string)
     else:
