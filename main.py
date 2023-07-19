@@ -461,8 +461,8 @@ async def slack_approve_comment(comment_id: str, authorization_token: str):
         return HTMLResponse(htmlMsg)
     else:
         logging.info("JWT app = "+decoded['app'])
-    dateStamp = pd.to_datetime(int(decoded["iat"]), utc=True, unit='s')
-    logging.info("JWT issued on "+str(dateStamp))
+    #dateStamp = pd.to_datetime(int(decoded["iat"]), utc=True, unit='s')
+    #logging.info("JWT issued on "+str(dateStamp))
     access = decoded["access"]
     secret = decoded["secret"]
     #
