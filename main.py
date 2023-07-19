@@ -483,9 +483,14 @@ async def slack_approve_comment(comment_id: str, authorization_token: str):
     #
     if ret == 0:
         ret = s3f.s3Delete ( s3_client, bucket, sourceObj )
-        logging.info("S3 Move successful")
-        html_string = Path('s3ApproveResponse.html').read_text()
-        return HTMLResponse(html_string)
+        if ret == 0:
+            logging.info("S3 Approve successful")
+            htmlstring = "<html><body><H3>GBADs S3 Slack Approve Comment</h3></body></html>"
+            return HTMLResponse(htmlstring)
+        else:
+            logging.error("S3 Delete not successful")
+            htmlMsg = rds.generateHTMLErrorMessage("S3 Delete not successful")
+            return HTMLResponse(htmlMsg)
     else:
         logging.error("S3 Copy not successful")
         htmlMsg = rds.generateHTMLErrorMessage("S3 Copy not successful")
@@ -493,7 +498,9 @@ async def slack_approve_comment(comment_id: str, authorization_token: str):
 
 @router.put("/slack/deny/{comment_id}", tags=["Internal Slack"])
 def slack_deny_comment(comment_id: str, authorization_token: str):
-    return NONE
+    logging.info("S3 Deny successful")
+    htmlstring = "<html><body><H3>GBADs S3 Slack Approve Comment</h3></body></html>"
+    return HTMLResponse(htmlstring)
 
 # This router allows a custom path to be used for the API
 app.include_router(router)
