@@ -418,7 +418,6 @@ async def slack_approve_comment(comment_id: str, authorization_token: str):
     #
     # Information for the task
     #
-    desired_task = "s3Move"
     desired_app = "slack-approve"
     #
     # Read in the public key
@@ -449,20 +448,12 @@ async def slack_approve_comment(comment_id: str, authorization_token: str):
     #
     # Check to see if the JWT payload is valid
     #
-    if decoded['task'] != desired_task:
-        logging.error("Invalid task in JSON Web Token payload")
-        htmlMsg = rds.generateHTMLErrorMessage("Invalid task in JSON Web Token payload")
-        return HTMLResponse(htmlMsg)
-    else:
-        logging.info("JWT task = "+decoded['task'])
     if decoded["app"] != desired_app:
         logging.error("Invalid app in JSON Web Token payload")
         htmlMsg = rds.generateHTMLErrorMessage("Invalid app in JSON Web Token payload")
         return HTMLResponse(htmlMsg)
     else:
         logging.info("JWT app = "+decoded['app'])
-    #dateStamp = pd.to_datetime(int(decoded["iat"]), utc=True, unit='s')
-    #logging.info("JWT issued on "+str(dateStamp))
     access = decoded["access"]
     secret = decoded["secret"]
     #
