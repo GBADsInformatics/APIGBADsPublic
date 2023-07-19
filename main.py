@@ -411,8 +411,15 @@ async def get_population ( data_source: str,
         htmlstring = rds.generateHTMLErrorMessage("Invalid format. Please use html or file.")
         return HTMLResponse(htmlstring)
 
+@router.get("/SlackComments/{public}", tags=["Knowledge Engine"])
+async def put_slack_comments( public: str,
+                              format: Optional[str] = "html"):
+    logging.info("SlackComments/{public} called")
+    html_string = Path('dataPortalDocumentation.html').read_text()
+    return HTMLResponse(html_string)
+
 @router.put("/slack/approve/{comment_id}", tags=["Internal Slack"])
-def slack_approve_comment(comment_id: str, authorization_token: str):
+async def slack_approve_comment(comment_id: str, authorization_token: str):
     logging.info("/slack/approve called")
     #
     # Information for the task
@@ -490,8 +497,8 @@ def slack_approve_comment(comment_id: str, authorization_token: str):
         htmlMsg = rds.generateHTMLErrorMessage("S3 Copy not successful")
         return HTMLResponse(htmlMsg)
 
-@router.get("/slackdeny/{comment_id}", tags=["Internal Slack"])
-def slack_deny_comment(comment_id: str, authorization_token: str):
+@router.put("/slack/deny/{comment_id}", tags=["Internal Slack"])
+async def slack_deny_comment(comment_id: str, authorization_token: str):
     logging.info("slack deny")
     html_string = Path('dataPortalDocumentation.html').read_text()
     return HTMLResponse(html_string)
