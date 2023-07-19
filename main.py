@@ -412,7 +412,7 @@ async def get_population ( data_source: str,
         return HTMLResponse(htmlstring)
 
 
-@router.post("/slack/approve/{comment_id}", tags=["Internal Slack"])
+@router.put("/slack/approve/{comment_id}", tags=["Internal Slack"])
 async def slack_approve_comment(comment_id: str, authorization_token: str):
     logging.info("/slack/approve called")
     #
