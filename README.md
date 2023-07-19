@@ -43,5 +43,5 @@ Now you can do actions on the GBADs S3 Storage:
 2. ```http://localhost:9000/GBADsTable/public?table_name=livestock_production_faostat&format=html```
 3. ```http://localhost:9000/GBADsPublicQuery/livestock_production_faostat?fields=country,year,species,population&query=year=2017%20AND%20species=%27Goats%27&format=html```
 4. ```http://localhost:9000/GBADsLivestockPopulation/oie?year=*&country=Canada&species=Cattle&format=html```
-5. ```http://localhost:9000/Slack/approve/2023-06-22 12:05:21.077294.json?authorization_token=lsjlsdfjaljdflajsdfljalsdfjlad```
+5. ```http://localhost:9000/slack/approve/2023-06-22 12:05:21.077294.json?authorization_token=lsjlsdfjaljdflajsdfljalsdfjlad```
 
