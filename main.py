@@ -490,7 +490,7 @@ def slack_approve_comment(comment_id: str, authorization_token: str):
         htmlMsg = rds.generateHTMLErrorMessage("S3 Copy not successful")
         return HTMLResponse(htmlMsg)
 
-@router.get("/slack/deny/{comment_id}", tags=["Internal Slack"])
+@router.get("/slackdeny/{comment_id}", tags=["Internal Slack"])
 def slack_deny_comment(comment_id: str, authorization_token: str):
     logging.info("slack deny")
     html_string = Path('dataPortalDocumentation.html').read_text()
