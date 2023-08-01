@@ -16,6 +16,22 @@ from datetime import datetime
 from Crypto.Cipher import AES
 import base64, math
 
+app = FastAPI(docs_url=os.environ.get('BASE_URL', '') + "/docs", openapi_url=os.environ.get('BASE_URL', '') + "/openapi.json")
+router = None
+
+if "BASE_URL" in os.environ:
+    router = APIRouter(prefix=os.environ["BASE_URL"])
+else:
+    router = APIRouter()
+
+#Function to removed the created CSV/HTML file
+def remove_file(path):
+    try:
+        os.unlink(path)
+        logging.info("Successfully removed file")
+    except Exception as e:
+        logging.error("Failed to delete %s." % path)
+
 #
 # Decrypting functions
 #
@@ -38,23 +54,6 @@ def get_info ( filename ):
     s1 = decrypt_with_common_cipher( ce_key, cbyte, ens1)
     s2 = decrypt_with_common_cipher( ce_key, cbyte, ens2)
     return s1, s2
-
-app = FastAPI(docs_url=os.environ.get('BASE_URL', '') + "/docs", openapi_url=os.environ.get('BASE_URL', '') + "/openapi.json")
-router = None
-
-if "BASE_URL" in os.environ:
-    router = APIRouter(prefix=os.environ["BASE_URL"])
-else:
-    router = APIRouter()
-
-#Function to removed the created CSV/HTML file
-def remove_file(path):
-    try:
-        os.unlink(path)
-        logging.info("Successfully removed file")
-    except Exception as e:
-        logging.error("Failed to delete %s." % path)
-
 
 #Telling the logger where to log the information
 logging.basicConfig(filename="logs/logs.txt", level=logging.DEBUG, format="%(asctime)s %(message)s")
@@ -542,79 +541,79 @@ def slack_deny_comment(comment_id: str, authorization_token: str):
     #
     # Decode the token and check for validity
     #
-    desired_app = "slackbot_comments_move"
-    desired_task = "deny"
-    try:
-        decoded = jwt.decode (
-            authorization_token,
-            key,
-            algorithms=["RS256"]
-        )
-        logging.info("Valid JSON Web Token")
-    except:
-        logging.error("Invalid JSON Web Token")
-        htmlMsg = rds.generateHTMLErrorMessage("Invalid JSON Web Token")
-        return HTMLResponse(htmlMsg)
+#    desired_app = "slackbot_comments_move"
+#    desired_task = "deny"
+#    try:
+#        decoded = jwt.decode (
+#            authorization_token,
+#            key,
+#            algorithms=["RS256"]
+#        )
+#        logging.info("Valid JSON Web Token")
+#    except:
+#        logging.error("Invalid JSON Web Token")
+#        htmlMsg = rds.generateHTMLErrorMessage("Invalid JSON Web Token")
+#        return HTMLResponse(htmlMsg)
     #
     # Check to see if the JWT payload is valid
     #
-    if decoded["app"] != desired_app:
-        logging.error("Invalid app in JSON Web Token payload")
-        htmlMsg = rds.generateHTMLErrorMessage("Invalid app in JSON Web Token payload")
-        return HTMLResponse(htmlMsg)
-    else:
-        logging.info("JWT app = "+decoded['app'])
-    if decoded["task"] != desired_task:
-        logging.error("Invalid task in JSON Web Token payload")
-        htmlMsg = rds.generateHTMLErrorMessage("Invalid task in JSON Web Token payload")
-        return HTMLResponse(htmlMsg)
-    else:
-        logging.info("JWT task = "+decoded['task'])
+#    if decoded["app"] != desired_app:
+#        logging.error("Invalid app in JSON Web Token payload")
+#        htmlMsg = rds.generateHTMLErrorMessage("Invalid app in JSON Web Token payload")
+#        return HTMLResponse(htmlMsg)
+#    else:
+#        logging.info("JWT app = "+decoded['app'])
+#    if decoded["task"] != desired_task:
+#        logging.error("Invalid task in JSON Web Token payload")
+#        htmlMsg = rds.generateHTMLErrorMessage("Invalid task in JSON Web Token payload")
+#        return HTMLResponse(htmlMsg)
+#    else:
+#        logging.info("JWT task = "+decoded['task'])
     #
     # decode keys
     #
-    access, secret = get_info ( "info.conf" )
+#    access, secret = get_info ( "info.conf" )
     #access = decoded["access"]
     #secret = decoded["secret"]
     #
     #  Access AWS Credentials and establish session as a client and resource
-    #
-    s3_client = s3f.credentials_client ( access, secret )
-    if s3_client == -1:
-        logging.error("Cannot connect to S3 as client")
-        htmlMsg = rds.generateHTMLErrorMessage("Cannot connect to S3 as client: "+access+" and "+secret)
-        return HTMLResponse(htmlMsg)
-    s3_resource = s3f.credentials_resource ( access, secret )
-    if s3_resource == -1:
-        logging.error("Cannot connect to S3 as resource")
-        htmlMsg = rds.generateHTMLErrorMessage("Cannot connect to S3 as resource: "+access+" and "+secret)
-        return HTMLResponse(htmlMsg)
+#    #
+#    s3_client = s3f.credentials_client ( access, secret )
+#    if s3_client == -1:
+#        logging.error("Cannot connect to S3 as client")
+#        htmlMsg = rds.generateHTMLErrorMessage("Cannot connect to S3 as client")
+#        return HTMLResponse(htmlMsg)
+#    s3_resource = s3f.credentials_resource ( access, secret )
+#    if s3_resource == -1:
+#        logging.error("Cannot connect to S3 as resource")
+#        htmlMsg = rds.generateHTMLErrorMessage("Cannot connect to S3 as resource: "+access+" and "+secret)
+#        return HTMLResponse(htmlMsg)
     #
     # To move a file: 1) copy the file to the given directory
     #
-    bucket = "gbads-comments"
-    srcFolder = "underreview/"
-    destFolder = "notapproved/"
-    sourceObj = srcFolder+comment_id
-    destObj = destFolder+comment_id
-    ret = s3f.s3Copy ( s3_client, bucket, sourceObj, destObj )
+#    bucket = "gbads-comments"
+#    srcFolder = "underreview/"
+#    destFolder = "notapproved/"
+#    sourceObj = srcFolder+comment_id
+#    destObj = destFolder+comment_id
+#    ret = s3f.s3Copy ( s3_client, bucket, sourceObj, destObj )
     #
     # Next: 2) delete the original file
     #
-    if ret == 0:
-        ret = s3f.s3Delete ( s3_client, bucket, sourceObj )
-        if ret == 0:
-            logging.info("S3 Deny successful")
-            htmlstring = "<html><body><H3>GBADs S3 Slack Deny Comment</h3></body></html>"
-            return HTMLResponse(htmlstring)
-        else:
-            logging.error("S3 Delete not successful")
-            htmlMsg = rds.generateHTMLErrorMessage("S3 Delete not successful")
-            return HTMLResponse(htmlMsg)
-    else:
-        logging.error("S3 Copy not successful")
-        htmlMsg = rds.generateHTMLErrorMessage("S3 Copy not successful")
-        return HTMLResponse(htmlMsg)
+#    if ret == 0:
+#        ret = s3f.s3Delete ( s3_client, bucket, sourceObj )
+#        if ret == 0:
+#            logging.info("S3 Deny successful")
+#            htmlstring = "<html><body><H3>GBADs S3 Slack Deny Comment</h3></body></html>"
+#            return HTMLResponse(htmlstring)
+#        else:
+#            logging.error("S3 Delete not successful")
+#            htmlMsg = rds.generateHTMLErrorMessage("S3 Delete not successful")
+#            return HTMLResponse(htmlMsg)
+#    else:
+#        logging.error("S3 Copy not successful")
+#        htmlMsg = rds.generateHTMLErrorMessage("S3 Copy not successful")
+#        return HTMLResponse(htmlMsg)
 
 # This router allows a custom path to be used for the API
 app.include_router(router)
