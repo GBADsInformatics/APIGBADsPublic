@@ -39,11 +39,10 @@ def get_common_cipher( ce_key, cbyte ):
     return AES.new(ce_key, AES.MODE_CBC, cbyte)
 
 def decrypt_with_common_cipher( ce_key, cbyte, ciphertext):
-    return ciphertext
-#    common_cipher = get_common_cipher( ce_key, cbyte )
-#    raw_ciphertext = base64.b64decode(ciphertext)
-#    decrypted_message_with_padding = common_cipher.decrypt(raw_ciphertext)
-#    return decrypted_message_with_padding.decode('utf-8').strip()
+    common_cipher = get_common_cipher( ce_key, cbyte )
+    raw_ciphertext = base64.b64decode(ciphertext)
+    decrypted_message_with_padding = common_cipher.decrypt(raw_ciphertext)
+    return decrypted_message_with_padding.decode('utf-8').strip()
 
 def get_info ( filename ):
     fp = open(filename, "r")
@@ -578,7 +577,7 @@ def slack_deny_comment(comment_id: str, authorization_token: str):
     #
     access, secret = get_info ( "info.conf" )
     a1, a2, a3, a4 = get_info ( "info.conf" )
-    htmlstring = "<html><body><H3>GBADs S3 Slack Deny Comment Entered - 4d</h3></body></html>"
+    htmlstring = "<html><body><H3>GBADs S3 Slack Deny Comment Entered - 4d "
     htmlstring = htmlstring+" "+a1+" "+a2+" "+a3+" "+a4+"</h3></body></html>"
     return HTMLResponse(htmlstring)
     #access = decoded["access"]
