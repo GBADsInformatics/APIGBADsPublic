@@ -13,6 +13,31 @@ import boto3
 import newS3TicketLib as s3f
 import jwt
 from datetime import datetime
+from Crypto.Cipher import AES
+import base64, math
+
+#
+# Decrypting functions
+#
+def get_common_cipher( ce_key, cbyte ):
+    return AES.new(ce_key, AES.MODE_CBC, cbyte)
+
+def decrypt_with_common_cipher( ce_key, cbyte, ciphertext):
+    common_cipher = get_common_cipher( ce_key, cbyte )
+    raw_ciphertext = base64.b64decode(ciphertext)
+    decrypted_message_with_padding = common_cipher.decrypt(raw_ciphertext)
+    return decrypted_message_with_padding.decode('utf-8').strip()
+
+def get_info ( filename ):
+    fp = open(filename, "r")
+    Lines = fp.readlines()
+    ce_key = Lines[0].strip()
+    cbyte = Lines[1].strip()
+    ens1 = Lines[2].strip()
+    ens2 = Lines[3].strip()
+    s1 = decrypt_with_common_cipher( ce_key, cbyte, ens1)
+    s2 = decrypt_with_common_cipher( ce_key, cbyte, ens2)
+    return s1, s2
 
 app = FastAPI(docs_url=os.environ.get('BASE_URL', '') + "/docs", openapi_url=os.environ.get('BASE_URL', '') + "/openapi.json")
 router = None
@@ -502,11 +527,10 @@ def slack_deny_comment(comment_id: str, authorization_token: str):
     #
     # Information for the task
     #
-    desired_app = "slack-deny"
+    key_filename = "slackbot_comments_move_deny_key.pub"
     #
     # Read in the public key
     #
-    key_filename = desired_app+"key.pub"
     try:
         fptr = open(key_filename, "rb")
         key = fptr.read()
@@ -518,6 +542,8 @@ def slack_deny_comment(comment_id: str, authorization_token: str):
     #
     # Decode the token and check for validity
     #
+    desired_app = "slackbot_comments_move"
+    desired_task = "deny"
     try:
         decoded = jwt.decode (
             authorization_token,
@@ -538,8 +564,18 @@ def slack_deny_comment(comment_id: str, authorization_token: str):
         return HTMLResponse(htmlMsg)
     else:
         logging.info("JWT app = "+decoded['app'])
-    access = decoded["access"]
-    secret = decoded["secret"]
+    if decoded["task"] != desired_task:
+        logging.error("Invalid task in JSON Web Token payload")
+        htmlMsg = rds.generateHTMLErrorMessage("Invalid task in JSON Web Token payload")
+        return HTMLResponse(htmlMsg)
+    else:
+        logging.info("JWT task = "+decoded['task'])
+    #
+    # decode keys
+    #
+    access, secret = get_info ( "info.conf" )
+    #access = decoded["access"]
+    #secret = decoded["secret"]
     #
     #  Access AWS Credentials and establish session as a client and resource
     #
