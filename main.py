@@ -573,6 +573,8 @@ def slack_deny_comment(comment_id: str, authorization_token: str):
     # decode keys
     #
     access, secret = get_info ( "info.conf" )
+    htmlstring = "<html><body><H3>GBADs S3 Slack Deny Comment Entered - 4a</h3></body></html>"
+    return HTMLResponse(htmlstring)
     #access = decoded["access"]
     #secret = decoded["secret"]
     #
@@ -588,8 +590,6 @@ def slack_deny_comment(comment_id: str, authorization_token: str):
         logging.error("Cannot connect to S3 as resource")
         htmlMsg = rds.generateHTMLErrorMessage("Cannot connect to S3 as resource: "+access+" and "+secret)
         return HTMLResponse(htmlMsg)
-    htmlstring = "<html><body><H3>GBADs S3 Slack Deny Comment Entered - 4</h3></body></html>"
-    return HTMLResponse(htmlstring)
     #
     # To move a file: 1) copy the file to the given directory
     #
