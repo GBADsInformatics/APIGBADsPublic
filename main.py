@@ -530,14 +530,14 @@ def slack_deny_comment(comment_id: str, authorization_token: str):
     #
     # Read in the public key
     #
-    try:
-        fptr = open(key_filename, "rb")
-        key = fptr.read()
-        fptr.close()
-    except:
-        logging.error("Bad information about public key filename")
-        htmlMsg = rds.generateHTMLErrorMessage("Bad information about public key filename")
-        return HTMLResponse(htmlMsg)
+#    try:
+#        fptr = open(key_filename, "rb")
+#        key = fptr.read()
+#        fptr.close()
+#    except:
+#        logging.error("Bad information about public key filename")
+#        htmlMsg = rds.generateHTMLErrorMessage("Bad information about public key filename")
+#        return HTMLResponse(htmlMsg)
     #
     # Decode the token and check for validity
     #
