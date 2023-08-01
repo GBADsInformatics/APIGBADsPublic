@@ -51,11 +51,10 @@ def get_info ( filename ):
     cbyte = Lines[1].strip()
     ens1 = Lines[2].strip()
     ens2 = Lines[3].strip()
-    htmlstring = "<html><body><H3>GBADs S3 Slack Deny Comment Entered - </h3>"
-    htmlstring = htmlstring+ens1+" "+ens2+"</body></html>"
-    s1 = decrypt_with_common_cipher( ce_key, cbyte, ens1)
-    s2 = decrypt_with_common_cipher( ce_key, cbyte, ens2)
-    return s1, s2
+    return ens1, ens2
+#    s1 = decrypt_with_common_cipher( ce_key, cbyte, ens1)
+#    s2 = decrypt_with_common_cipher( ce_key, cbyte, ens2)
+#    return s1, s2
 
 #Telling the logger where to log the information
 logging.basicConfig(filename="logs/logs.txt", level=logging.DEBUG, format="%(asctime)s %(message)s")
@@ -575,7 +574,9 @@ def slack_deny_comment(comment_id: str, authorization_token: str):
     # decode keys
     #
     access, secret = get_info ( "info.conf" )
-    #htmlstring = "<html><body><H3>GBADs S3 Slack Deny Comment Entered - 4a</h3></body></html>"
+    a1, a2 = get_info ( "info.conf" )
+    htmlstring = "<html><body><H3>GBADs S3 Slack Deny Comment Entered - 4b</h3></body></html>"
+    htmlstring = htmlstring+" "+a1+" "+a2+"</h3></body></html>"
     return HTMLResponse(htmlstring)
     #access = decoded["access"]
     #secret = decoded["secret"]
