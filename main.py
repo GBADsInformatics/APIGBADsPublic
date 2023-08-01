@@ -554,23 +554,23 @@ def slack_deny_comment(comment_id: str, authorization_token: str):
         logging.error("Invalid JSON Web Token")
         htmlMsg = rds.generateHTMLErrorMessage("Invalid JSON Web Token")
         return HTMLResponse(htmlMsg)
-    htmlstring = "<html><body><H3>GBADs S3 Slack Deny Comment Entered - 2</h3></body></html>"
-    return HTMLResponse(htmlstring)
     #
     # Check to see if the JWT payload is valid
     #
-#    if decoded["app"] != desired_app:
-#        logging.error("Invalid app in JSON Web Token payload")
-#        htmlMsg = rds.generateHTMLErrorMessage("Invalid app in JSON Web Token payload")
-#        return HTMLResponse(htmlMsg)
-#    else:
-#        logging.info("JWT app = "+decoded['app'])
-#    if decoded["task"] != desired_task:
-#        logging.error("Invalid task in JSON Web Token payload")
-#        htmlMsg = rds.generateHTMLErrorMessage("Invalid task in JSON Web Token payload")
-#        return HTMLResponse(htmlMsg)
-#    else:
-#        logging.info("JWT task = "+decoded['task'])
+    if decoded["app"] != desired_app:
+        logging.error("Invalid app in JSON Web Token payload")
+        htmlMsg = rds.generateHTMLErrorMessage("Invalid app in JSON Web Token payload")
+        return HTMLResponse(htmlMsg)
+    else:
+        logging.info("JWT app = "+decoded['app'])
+    if decoded["task"] != desired_task:
+        logging.error("Invalid task in JSON Web Token payload")
+        htmlMsg = rds.generateHTMLErrorMessage("Invalid task in JSON Web Token payload")
+        return HTMLResponse(htmlMsg)
+    else:
+        logging.info("JWT task = "+decoded['task'])
+    htmlstring = "<html><body><H3>GBADs S3 Slack Deny Comment Entered - 2</h3></body></html>"
+    return HTMLResponse(htmlstring)
     #
     # decode keys
     #
