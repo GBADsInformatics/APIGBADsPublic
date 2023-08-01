@@ -569,27 +569,27 @@ def slack_deny_comment(comment_id: str, authorization_token: str):
         return HTMLResponse(htmlMsg)
     else:
         logging.info("JWT task = "+decoded['task'])
-    htmlstring = "<html><body><H3>GBADs S3 Slack Deny Comment Entered - 3</h3></body></html>"
-    return HTMLResponse(htmlstring)
     #
     # decode keys
     #
-#    access, secret = get_info ( "info.conf" )
+    access, secret = get_info ( "info.conf" )
     #access = decoded["access"]
     #secret = decoded["secret"]
     #
     #  Access AWS Credentials and establish session as a client and resource
-#    #
-#    s3_client = s3f.credentials_client ( access, secret )
-#    if s3_client == -1:
-#        logging.error("Cannot connect to S3 as client")
-#        htmlMsg = rds.generateHTMLErrorMessage("Cannot connect to S3 as client")
-#        return HTMLResponse(htmlMsg)
-#    s3_resource = s3f.credentials_resource ( access, secret )
-#    if s3_resource == -1:
-#        logging.error("Cannot connect to S3 as resource")
-#        htmlMsg = rds.generateHTMLErrorMessage("Cannot connect to S3 as resource: "+access+" and "+secret)
-#        return HTMLResponse(htmlMsg)
+    #
+    s3_client = s3f.credentials_client ( access, secret )
+    if s3_client == -1:
+        logging.error("Cannot connect to S3 as client")
+        htmlMsg = rds.generateHTMLErrorMessage("Cannot connect to S3 as client")
+        return HTMLResponse(htmlMsg)
+    s3_resource = s3f.credentials_resource ( access, secret )
+    if s3_resource == -1:
+        logging.error("Cannot connect to S3 as resource")
+        htmlMsg = rds.generateHTMLErrorMessage("Cannot connect to S3 as resource: "+access+" and "+secret)
+        return HTMLResponse(htmlMsg)
+    htmlstring = "<html><body><H3>GBADs S3 Slack Deny Comment Entered - 4</h3></body></html>"
+    return HTMLResponse(htmlstring)
     #
     # To move a file: 1) copy the file to the given directory
     #
