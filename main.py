@@ -527,6 +527,8 @@ def slack_deny_comment(comment_id: str, authorization_token: str):
     # Information for the task
     #
     key_filename = "slackbot_comments_move_deny_key.pub"
+    htmlstring = "<html><body><H3>GBADs S3 Slack Deny Comment Entered - 1</h3></body></html>"
+    return HTMLResponse(htmlstring)
     #
     # Read in the public key
     #
