@@ -538,24 +538,24 @@ def slack_deny_comment(comment_id: str, authorization_token: str):
         logging.error("Bad information about public key filename")
         htmlMsg = rds.generateHTMLErrorMessage("Bad information about public key filename")
         return HTMLResponse(htmlMsg)
-    htmlstring = "<html><body><H3>GBADs S3 Slack Deny Comment Entered - 1</h3></body></html>"
-    return HTMLResponse(htmlstring)
     #
     # Decode the token and check for validity
     #
-#    desired_app = "slackbot_comments_move"
-#    desired_task = "deny"
-#    try:
-#        decoded = jwt.decode (
-#            authorization_token,
-#            key,
-#            algorithms=["RS256"]
-#        )
-#        logging.info("Valid JSON Web Token")
-#    except:
-#        logging.error("Invalid JSON Web Token")
-#        htmlMsg = rds.generateHTMLErrorMessage("Invalid JSON Web Token")
-#        return HTMLResponse(htmlMsg)
+    desired_app = "slackbot_comments_move"
+    desired_task = "deny"
+    try:
+        decoded = jwt.decode (
+            authorization_token,
+            key,
+            algorithms=["RS256"]
+        )
+        logging.info("Valid JSON Web Token")
+    except:
+        logging.error("Invalid JSON Web Token")
+        htmlMsg = rds.generateHTMLErrorMessage("Invalid JSON Web Token")
+        return HTMLResponse(htmlMsg)
+    htmlstring = "<html><body><H3>GBADs S3 Slack Deny Comment Entered - 2</h3></body></html>"
+    return HTMLResponse(htmlstring)
     #
     # Check to see if the JWT payload is valid
     #
