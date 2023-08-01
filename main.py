@@ -569,7 +569,7 @@ def slack_deny_comment(comment_id: str, authorization_token: str):
         return HTMLResponse(htmlMsg)
     else:
         logging.info("JWT task = "+decoded['task'])
-    htmlstring = "<html><body><H3>GBADs S3 Slack Deny Comment Entered - 2</h3></body></html>"
+    htmlstring = "<html><body><H3>GBADs S3 Slack Deny Comment Entered - 3</h3></body></html>"
     return HTMLResponse(htmlstring)
     #
     # decode keys
