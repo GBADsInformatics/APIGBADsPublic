@@ -527,19 +527,19 @@ def slack_deny_comment(comment_id: str, authorization_token: str):
     # Information for the task
     #
     key_filename = "slackbot_comments_move_deny_key.pub"
-    htmlstring = "<html><body><H3>GBADs S3 Slack Deny Comment Entered - 1</h3></body></html>"
-    return HTMLResponse(htmlstring)
     #
     # Read in the public key
     #
-#    try:
-#        fptr = open(key_filename, "rb")
-#        key = fptr.read()
-#        fptr.close()
-#    except:
-#        logging.error("Bad information about public key filename")
-#        htmlMsg = rds.generateHTMLErrorMessage("Bad information about public key filename")
-#        return HTMLResponse(htmlMsg)
+    try:
+        fptr = open(key_filename, "rb")
+        key = fptr.read()
+        fptr.close()
+    except:
+        logging.error("Bad information about public key filename")
+        htmlMsg = rds.generateHTMLErrorMessage("Bad information about public key filename")
+        return HTMLResponse(htmlMsg)
+    htmlstring = "<html><body><H3>GBADs S3 Slack Deny Comment Entered - 1</h3></body></html>"
+    return HTMLResponse(htmlstring)
     #
     # Decode the token and check for validity
     #
