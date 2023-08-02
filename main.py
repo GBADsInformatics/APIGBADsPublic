@@ -424,11 +424,10 @@ async def slack_approve_comment(comment_id: str, authorization_token: str):
     #
     # Information for the task
     #
-    desired_app = "slack-approve"
+    key_filename = "slackbot_comments_move_approve_key.pub"
     #
     # Read in the public key
     #
-    key_filename = desired_app+"key.pub"
     try:
         fptr = open(key_filename, "rb")
         key = fptr.read()
@@ -440,6 +439,8 @@ async def slack_approve_comment(comment_id: str, authorization_token: str):
     #
     # Decode the token and check for validity
     #
+    desired_app = "slackbot_comments_move"
+    desired_task = "approve"
     try:
         decoded = jwt.decode (
             authorization_token,
@@ -460,8 +461,25 @@ async def slack_approve_comment(comment_id: str, authorization_token: str):
         return HTMLResponse(htmlMsg)
     else:
         logging.info("JWT app = "+decoded['app'])
-    access = decoded["access"]
-    secret = decoded["secret"]
+    if decoded["task"] != desired_task:
+        logging.error("Invalid task in JSON Web Token payload")
+        htmlMsg = rds.generateHTMLErrorMessage("Invalid task in JSON Web Token payload")
+        return HTMLResponse(htmlMsg)
+    else:
+        logging.info("JWT task = "+decoded['app'])
+    #
+    # decode keys
+    #
+    key = load_key()
+    # initialize the Fernet class
+    f = Fernet(key)
+    # read the encrypted keys
+    with open("info.conf", "r") as info_file:
+        encrypt1 = info_file.readline().strip()
+        encrypt2 = info_file.readline().strip()
+
+    access = f.decrypt(encrypt1.encode('utf-8')).decode('utf-8')
+    secret = f.decrypt(encrypt2.encode('utf-8')).decode('utf-8')
     #
     #  Access AWS Credentials and establish session as a client and resource
     #
