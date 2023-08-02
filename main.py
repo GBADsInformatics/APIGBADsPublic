@@ -13,8 +13,7 @@ import boto3
 import newS3TicketLib as s3f
 import jwt
 from datetime import datetime
-from Crypto.Cipher import AES
-import base64, math
+from cryptography.fernet import Fernet
 
 app = FastAPI(docs_url=os.environ.get('BASE_URL', '') + "/docs", openapi_url=os.environ.get('BASE_URL', '') + "/openapi.json")
 router = None
@@ -33,29 +32,10 @@ def remove_file(path):
         logging.error("Failed to delete %s." % path)
 
 #
-# Decrypting functions
+# Loads the key into key.conf
 #
-def get_common_cipher( ce_key, cbyte ):
-    return AES.new(ce_key, AES.MODE_CBC, cbyte)
-
-def decrypt_with_common_cipher( ce_key, cbyte, ciphertext):
-    common_cipher = get_common_cipher( ce_key, cbyte )
-    raw_ciphertext = base64.b64decode(ciphertext)
-    decrypted_message_with_padding = common_cipher.decrypt(raw_ciphertext)
-    return decrypted_message_with_padding.decode('utf-8').strip()
-
-def get_info ( filename ):
-    fp = open(filename, "r")
-    Lines = fp.readlines()
-    ce_key = Lines[0].strip()
-    cbyte = Lines[1].strip()
-    ens1 = Lines[2].strip()
-    ens2 = Lines[3].strip()
-    common_cipher = AES.new(ce_key, AES.MODE_CBC, cbyte)
-    return common_cipher
-#    s1 = decrypt_with_common_cipher( ce_key, cbyte, ens1)
-#    s2 = decrypt_with_common_cipher( ce_key, cbyte, ens2)
-#    return s1, s2
+def load_key():
+    return open("key.conf", "rb").read()
 
 #Telling the logger where to log the information
 logging.basicConfig(filename="logs/logs.txt", level=logging.DEBUG, format="%(asctime)s %(message)s")
@@ -574,13 +554,17 @@ def slack_deny_comment(comment_id: str, authorization_token: str):
     #
     # decode keys
     #
-#    access, secret = get_info ( "info.conf" )
-    a1 = get_info ( "info.conf" )
-    htmlstring = "<html><body><H3>GBADs S3 Slack Deny Comment Entered - 4e "
-    htmlstring = htmlstring+" "+a1+"</h3></body></html>"
-    return HTMLResponse(htmlstring)
-    #access = decoded["access"]
-    #secret = decoded["secret"]
+    key = load_key()
+    # initialize the Fernet class
+    f = Fernet(key)
+    # read the encrypted keys
+    with open("info.conf", "r") as info_file:
+        encrypt1 = info_file.readline().strip()
+        encrypt2 = info_file.readline().strip()
+
+    access = f.decrypt(encrypt1.encode('utf-8')).decode('utf-8')
+    secret = f.decrypt(encrypt2.encode('utf-8')).decode('utf-8')
+
     #
     #  Access AWS Credentials and establish session as a client and resource
     #
