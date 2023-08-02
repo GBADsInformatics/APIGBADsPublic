@@ -581,29 +581,29 @@ def slack_deny_comment(comment_id: str, authorization_token: str):
     #
     # To move a file: 1) copy the file to the given directory
     #
-#    bucket = "gbads-comments"
-#    srcFolder = "underreview/"
-#    destFolder = "notapproved/"
-#    sourceObj = srcFolder+comment_id
-#    destObj = destFolder+comment_id
-#    ret = s3f.s3Copy ( s3_client, bucket, sourceObj, destObj )
+    bucket = "gbads-comments"
+    srcFolder = "underreview/"
+    destFolder = "notapproved/"
+    sourceObj = srcFolder+comment_id
+    destObj = destFolder+comment_id
+    ret = s3f.s3Copy ( s3_client, bucket, sourceObj, destObj )
     #
     # Next: 2) delete the original file
     #
-#    if ret == 0:
-#        ret = s3f.s3Delete ( s3_client, bucket, sourceObj )
-#        if ret == 0:
-#            logging.info("S3 Deny successful")
-#            htmlstring = "<html><body><H3>GBADs S3 Slack Deny Comment</h3></body></html>"
-#            return HTMLResponse(htmlstring)
-#        else:
-#            logging.error("S3 Delete not successful")
-#            htmlMsg = rds.generateHTMLErrorMessage("S3 Delete not successful")
-#            return HTMLResponse(htmlMsg)
-#    else:
-#        logging.error("S3 Copy not successful")
-#        htmlMsg = rds.generateHTMLErrorMessage("S3 Copy not successful")
-#        return HTMLResponse(htmlMsg)
+    if ret == 0:
+        ret = s3f.s3Delete ( s3_client, bucket, sourceObj )
+        if ret == 0:
+            logging.info("S3 Deny successful")
+            htmlstring = "<html><body><H3>GBADs S3 Slack Deny Comment</h3></body></html>"
+            return HTMLResponse(htmlstring)
+        else:
+            logging.error("S3 Delete not successful")
+            htmlMsg = rds.generateHTMLErrorMessage("S3 Delete not successful")
+            return HTMLResponse(htmlMsg)
+    else:
+        logging.error("S3 Copy not successful")
+        htmlMsg = rds.generateHTMLErrorMessage("S3 Copy not successful")
+        return HTMLResponse(htmlMsg)
 
 # This router allows a custom path to be used for the API
 app.include_router(router)
