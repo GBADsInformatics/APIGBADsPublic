@@ -521,14 +521,14 @@ async def slack_approve_comment(comment_id: str, authorization_token: str, revie
     #
     # Get database information
     #
-    key1 = "information/database.json"
-    json_object1 = s3_client.get_object(Bucket=bucket,Key=key1)
-    file_reader1 = json_object1['Body'].read().decode("utf-8")
-    file_reader1 = json.loads(file_reader1)
-    db_host = str(file_reader1["DBHOST"])
-    db_name = str(file_reader1["DBNAME"])
-    db_user = str(file_reader1["DBUSER"])
-    db_pass = str(file_reader1["DBPASS"])
+#    key1 = "information/database.json"
+#    json_object1 = s3_client.get_object(Bucket=bucket,Key=key1)
+#    file_reader1 = json_object1['Body'].read().decode("utf-8")
+#    file_reader1 = json.loads(file_reader1)
+#    db_host = str(file_reader1["DBHOST"])
+#    db_name = str(file_reader1["DBNAME"])
+#    db_user = str(file_reader1["DBUSER"])
+#    db_pass = str(file_reader1["DBPASS"])
     #
     # Create connection and cursor to database and insert new record
     #
