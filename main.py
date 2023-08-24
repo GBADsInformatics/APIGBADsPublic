@@ -495,31 +495,33 @@ async def slack_approve_comment(comment_id: str, authorization_token: str, revie
         logging.error("Cannot connect to S3 as resource")
         htmlMsg = rds.generateHTMLErrorMessage("Cannot connect to S3 as resource: "+access+" and "+secret)
         return HTMLResponse(htmlMsg)
+    htmlMsg = rds.generateHTMLErrorMessage("connected to S3")
+    return HTMLResponse(htmlMsg)
     #
     # Extract information from the json file and construct a database table entry
     #
-    bucket = "gbads-comments"
-    srcFolder = "underreview/"
-    key0 = srcFolder+comment_id
-    json_object = s3_client.get_object(Bucket=bucket,Key=key0)
-    file_reader = json_object['Body'].read().decode("utf-8")
-    file_reader = json.loads(file_reader)
-    created = str(file_reader["created"])[0:19]
-    approved = str(datetime.datetime.now())[0:19]
-    dashboard = str(file_reader["dashboard"])
-    table = str(file_reader["table"])
-    subject = str(file_reader["subject"])
-    message = str(file_reader["message"])
-    isPublic = str(file_reader["isPublic"]).upper()
-    if isPublic == "FALSE":
-        name = "NULL"
-        email = "NULL"
-    else:
-        name = str(file_reader["name"])
-        email = str(file_reader["email"])
-    dbRow = "('"+created+"','"+approved+"','"+dashboard+"','"+table+"','"+subject+"','"+message+"','"+name+"','"+email+"',"+isPublic+",'"+reviewer+"')"
-    htmlMsg = rds.generateHTMLErrorMessage("decoded the json")
-    return HTMLResponse(htmlMsg)
+#    bucket = "gbads-comments"
+#    srcFolder = "underreview/"
+#    key0 = srcFolder+comment_id
+#    json_object = s3_client.get_object(Bucket=bucket,Key=key0)
+#    file_reader = json_object['Body'].read().decode("utf-8")
+#    file_reader = json.loads(file_reader)
+#    created = str(file_reader["created"])[0:19]
+#    approved = str(datetime.datetime.now())[0:19]
+#    dashboard = str(file_reader["dashboard"])
+#    table = str(file_reader["table"])
+#    subject = str(file_reader["subject"])
+#    message = str(file_reader["message"])
+#    isPublic = str(file_reader["isPublic"]).upper()
+#    if isPublic == "FALSE":
+#        name = "NULL"
+#        email = "NULL"
+#    else:
+#        name = str(file_reader["name"])
+#        email = str(file_reader["email"])
+#    dbRow = "('"+created+"','"+approved+"','"+dashboard+"','"+table+"','"+subject+"','"+message+"','"+name+"','"+email+"',"+isPublic+",'"+reviewer+"')"
+#    htmlMsg = rds.generateHTMLErrorMessage("decoded the json")
+#    return HTMLResponse(htmlMsg)
     #
     # Get database information
     #
