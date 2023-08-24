@@ -499,7 +499,7 @@ async def slack_approve_comment(comment_id: str, authorization_token: str, revie
     # Extract information from the json file and construct a database table entry
     #
     key0 = comment_id
-    json_object = s3.get_object(Bucket=bucket,Key=key0)
+    json_object = s3_client.get_object(Bucket=bucket,Key=key0)
     file_reader = json_object['Body'].read().decode("utf-8")
     file_reader = json.loads(file_reader)
     created = str(file_reader["created"])[0:19]
@@ -520,7 +520,7 @@ async def slack_approve_comment(comment_id: str, authorization_token: str, revie
     # Get database information
     #
     key1 = "information/database.json"
-    json_object1 = s3.get_object(Bucket=bucket,Key=key1)
+    json_object1 = s3_client.get_object(Bucket=bucket,Key=key1)
     file_reader1 = json_object1['Body'].read().decode("utf-8")
     file_reader1 = json.loads(file_reader1)
     db_host = str(file_reader1["DBHOST"])
