@@ -498,50 +498,50 @@ async def slack_approve_comment(comment_id: str, authorization_token: str, revie
     #
     # Extract information from the json file and construct a database table entry
     #
-#    bucket = "gbads-comments"
-#    srcFolder = "underreview/"
-#    key0 = srcFolder+comment_id
-#    json_object = s3_client.get_object(Bucket=bucket,Key=key0)
-#    file_reader = json_object['Body'].read().decode("utf-8")
-#    file_reader = json.loads(file_reader)
-#    created = str(file_reader["created"])[0:19]
-#    approved = str(datetime.datetime.now())[0:19]
-#    dashboard = str(file_reader["dashboard"])
-#    table = str(file_reader["table"])
-#    subject = str(file_reader["subject"])
-#    message = str(file_reader["message"])
-#    isPublic = str(file_reader["isPublic"]).upper()
-#    if isPublic == "FALSE":
-#        name = "NULL"
-#        email = "NULL"
-#    else:
-#        name = str(file_reader["name"])
-#        email = str(file_reader["email"])
-#    dbRow = "('"+created+"','"+approved+"','"+dashboard+"','"+table+"','"+subject+"','"+message+"','"+name+"','"+email+"',"+isPublic+",'"+reviewer+"')"
+    bucket = "gbads-comments"
+    srcFolder = "underreview/"
+    key0 = srcFolder+comment_id
+    json_object = s3_client.get_object(Bucket=bucket,Key=key0)
+    file_reader = json_object['Body'].read().decode("utf-8")
+    file_reader = json.loads(file_reader)
+    created = str(file_reader["created"])[0:19]
+    approved = str(datetime.datetime.now())[0:19]
+    dashboard = str(file_reader["dashboard"])
+    table = str(file_reader["table"])
+    subject = str(file_reader["subject"])
+    message = str(file_reader["message"])
+    isPublic = str(file_reader["isPublic"]).upper()
+    if isPublic == "FALSE":
+        name = "NULL"
+        email = "NULL"
+    else:
+        name = str(file_reader["name"])
+        email = str(file_reader["email"])
+    dbRow = "('"+created+"','"+approved+"','"+dashboard+"','"+table+"','"+subject+"','"+message+"','"+name+"','"+email+"',"+isPublic+",'"+reviewer+"')"
     #
     # Get database information
     #
-#    key1 = "information/database.json"
-#    json_object1 = s3_client.get_object(Bucket=bucket,Key=key1)
-#    file_reader1 = json_object1['Body'].read().decode("utf-8")
-#    file_reader1 = json.loads(file_reader1)
-#    db_host = str(file_reader1["DBHOST"])
-#    db_name = str(file_reader1["DBNAME"])
-#    db_user = str(file_reader1["DBUSER"])
-#    db_pass = str(file_reader1["DBPASS"])
+    key1 = "information/database.json"
+    json_object1 = s3_client.get_object(Bucket=bucket,Key=key1)
+    file_reader1 = json_object1['Body'].read().decode("utf-8")
+    file_reader1 = json.loads(file_reader1)
+    db_host = str(file_reader1["DBHOST"])
+    db_name = str(file_reader1["DBNAME"])
+    db_user = str(file_reader1["DBUSER"])
+    db_pass = str(file_reader1["DBPASS"])
     #
     # Create connection and cursor to database and insert new record
     #
-#    conn_string = "host="+db_host+" dbname="+db_name+" user="+db_user+" password="+db_pass
-#    conn = ps.connect(conn_string)
-#    cur = conn.cursor()
-#    insert_string = "INSERT into gbads_comments VALUES "+dbRow+";"
-#    cur.execute(insert_string)
+    conn_string = "host="+db_host+" dbname="+db_name+" user="+db_user+" password="+db_pass
+    conn = ps.connect(conn_string)
+    cur = conn.cursor()
+    insert_string = "INSERT into gbads_comments VALUES "+dbRow+";"
+    cur.execute(insert_string)
     #
     # Commit data insertion and close database connection
     #
-#    conn.commit()
-#    conn.close()
+    conn.commit()
+    conn.close()
     #
     # To move a file: 1) copy the file to the given directory
     #
