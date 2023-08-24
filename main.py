@@ -532,16 +532,16 @@ async def slack_approve_comment(comment_id: str, authorization_token: str, revie
     #
     # Create connection and cursor to database and insert new record
     #
-#    conn_string = "host="+db_host+" dbname="+db_name+" user="+db_user+" password="+db_pass
-#    conn = ps.connect(conn_string)
-#    cur = conn.cursor()
-#    insert_string = "INSERT into gbads_comments VALUES "+dbRow+";"
-#    cur.execute(insert_string)
+    conn_string = "host="+db_host+" dbname="+db_name+" user="+db_user+" password="+db_pass
+    conn = ps.connect(conn_string)
+    cur = conn.cursor()
+    insert_string = "INSERT into gbads_comments VALUES "+dbRow+";"
+    cur.execute(insert_string)
     #
     # Commit data insertion and close database connection
     #
-#    conn.commit()
-#    conn.close()
+    conn.commit()
+    conn.close()
     #
     # To move a file: 1) copy the file to the given directory
     #
