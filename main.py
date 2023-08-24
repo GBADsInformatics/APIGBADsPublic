@@ -421,7 +421,7 @@ async def get_population ( data_source: str,
 
 
 @router.post("/slack/approve/{comment_id}", tags=["Internal Slack"])
-async def slack_approve_comment(comment_id: str, authorization_token: str, reviewer: Optional[str]):
+async def slack_approve_comment(comment_id: str, authorization_token: str, reviewer: Optional[str] = "none"):
     logging.info("/slack/approve called")
     #
     # Information for the task
