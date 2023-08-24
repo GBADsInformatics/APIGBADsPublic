@@ -518,56 +518,58 @@ async def slack_approve_comment(comment_id: str, authorization_token: str, revie
         name = str(file_reader["name"])
         email = str(file_reader["email"])
     dbRow = "('"+created+"','"+approved+"','"+dashboard+"','"+table+"','"+subject+"','"+message+"','"+name+"','"+email+"',"+isPublic+",'"+reviewer+"')"
+    htmlMsg = rds.generateHTMLErrorMessage("decoded the json")
+    return HTMLResponse(htmlMsg)
     #
     # Get database information
     #
-    key1 = "information/database.json"
-    json_object1 = s3_client.get_object(Bucket=bucket,Key=key1)
-    file_reader1 = json_object1['Body'].read().decode("utf-8")
-    file_reader1 = json.loads(file_reader1)
-    db_host = str(file_reader1["DBHOST"])
-    db_name = str(file_reader1["DBNAME"])
-    db_user = str(file_reader1["DBUSER"])
-    db_pass = str(file_reader1["DBPASS"])
+#    key1 = "information/database.json"
+#    json_object1 = s3_client.get_object(Bucket=bucket,Key=key1)
+#    file_reader1 = json_object1['Body'].read().decode("utf-8")
+#    file_reader1 = json.loads(file_reader1)
+#    db_host = str(file_reader1["DBHOST"])
+#    db_name = str(file_reader1["DBNAME"])
+#    db_user = str(file_reader1["DBUSER"])
+#    db_pass = str(file_reader1["DBPASS"])
     #
     # Create connection and cursor to database and insert new record
     #
-    conn_string = "host="+db_host+" dbname="+db_name+" user="+db_user+" password="+db_pass
-    conn = ps.connect(conn_string)
-    cur = conn.cursor()
-    insert_string = "INSERT into gbads_comments VALUES "+dbRow+";"
-    cur.execute(insert_string)
+#    conn_string = "host="+db_host+" dbname="+db_name+" user="+db_user+" password="+db_pass
+#    conn = ps.connect(conn_string)
+#    cur = conn.cursor()
+#    insert_string = "INSERT into gbads_comments VALUES "+dbRow+";"
+#    cur.execute(insert_string)
     #
     # Commit data insertion and close database connection
     #
-    conn.commit()
-    conn.close()
+#    conn.commit()
+#    conn.close()
     #
     # To move a file: 1) copy the file to the given directory
     #
-    bucket = "gbads-comments"
-    srcFolder = "underreview/"
-    destFolder = "approved/"
-    sourceObj = srcFolder+comment_id
-    destObj = destFolder+comment_id
-    ret = s3f.s3Copy ( s3_client, bucket, sourceObj, destObj )
+#    bucket = "gbads-comments"
+#    srcFolder = "underreview/"
+#    destFolder = "approved/"
+#    sourceObj = srcFolder+comment_id
+#    destObj = destFolder+comment_id
+#    ret = s3f.s3Copy ( s3_client, bucket, sourceObj, destObj )
     #
     # Next: 2) delete the original file
     #
-    if ret == 0:
-        ret = s3f.s3Delete ( s3_client, bucket, sourceObj )
-        if ret == 0:
-            logging.info("S3 Approve successful")
-            htmlstring = "<html><body><H3>GBADs S3 Slack Approve Comment</h3></body></html>"
-            return HTMLResponse(htmlstring)
-        else:
-            logging.error("S3 Delete not successful")
-            htmlMsg = rds.generateHTMLErrorMessage("S3 Delete not successful")
-            return HTMLResponse(htmlMsg)
-    else:
-        logging.error("S3 Copy not successful")
-        htmlMsg = rds.generateHTMLErrorMessage("S3 Copy not successful")
-        return HTMLResponse(htmlMsg)
+#    if ret == 0:
+#        ret = s3f.s3Delete ( s3_client, bucket, sourceObj )
+#        if ret == 0:
+#            logging.info("S3 Approve successful")
+#            htmlstring = "<html><body><H3>GBADs S3 Slack Approve Comment</h3></body></html>"
+#            return HTMLResponse(htmlstring)
+#        else:
+#            logging.error("S3 Delete not successful")
+#            htmlMsg = rds.generateHTMLErrorMessage("S3 Delete not successful")
+#            return HTMLResponse(htmlMsg)
+#    else:
+#        logging.error("S3 Copy not successful")
+#        htmlMsg = rds.generateHTMLErrorMessage("S3 Copy not successful")
+#        return HTMLResponse(htmlMsg)
 
 @router.post("/slack/deny/{comment_id}", tags=["Internal Slack"])
 def slack_deny_comment(comment_id: str, authorization_token: str):
