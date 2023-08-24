@@ -495,8 +495,6 @@ async def slack_approve_comment(comment_id: str, authorization_token: str, revie
         logging.error("Cannot connect to S3 as resource")
         htmlMsg = rds.generateHTMLErrorMessage("Cannot connect to S3 as resource: "+access+" and "+secret)
         return HTMLResponse(htmlMsg)
-    htmlMsg = rds.generateHTMLErrorMessage("connected to S3")
-    return HTMLResponse(htmlMsg)
     #
     # Extract information from the json file and construct a database table entry
     #
@@ -549,29 +547,29 @@ async def slack_approve_comment(comment_id: str, authorization_token: str, revie
     #
     # To move a file: 1) copy the file to the given directory
     #
-#    bucket = "gbads-comments"
-#    srcFolder = "underreview/"
-#    destFolder = "approved/"
-#    sourceObj = srcFolder+comment_id
-#    destObj = destFolder+comment_id
-#    ret = s3f.s3Copy ( s3_client, bucket, sourceObj, destObj )
+    bucket = "gbads-comments"
+    srcFolder = "underreview/"
+    destFolder = "approved/"
+    sourceObj = srcFolder+comment_id
+    destObj = destFolder+comment_id
+    ret = s3f.s3Copy ( s3_client, bucket, sourceObj, destObj )
     #
     # Next: 2) delete the original file
     #
-#    if ret == 0:
-#        ret = s3f.s3Delete ( s3_client, bucket, sourceObj )
-#        if ret == 0:
-#            logging.info("S3 Approve successful")
-#            htmlstring = "<html><body><H3>GBADs S3 Slack Approve Comment</h3></body></html>"
-#            return HTMLResponse(htmlstring)
-#        else:
-#            logging.error("S3 Delete not successful")
-#            htmlMsg = rds.generateHTMLErrorMessage("S3 Delete not successful")
-#            return HTMLResponse(htmlMsg)
-#    else:
-#        logging.error("S3 Copy not successful")
-#        htmlMsg = rds.generateHTMLErrorMessage("S3 Copy not successful")
-#        return HTMLResponse(htmlMsg)
+    if ret == 0:
+        ret = s3f.s3Delete ( s3_client, bucket, sourceObj )
+        if ret == 0:
+            logging.info("S3 Approve successful")
+            htmlstring = "<html><body><H3>GBADs S3 Slack Approve Comment</h3></body></html>"
+            return HTMLResponse(htmlstring)
+        else:
+            logging.error("S3 Delete not successful")
+            htmlMsg = rds.generateHTMLErrorMessage("S3 Delete not successful")
+            return HTMLResponse(htmlMsg)
+    else:
+        logging.error("S3 Copy not successful")
+        htmlMsg = rds.generateHTMLErrorMessage("S3 Copy not successful")
+        return HTMLResponse(htmlMsg)
 
 @router.post("/slack/deny/{comment_id}", tags=["Internal Slack"])
 def slack_deny_comment(comment_id: str, authorization_token: str):
