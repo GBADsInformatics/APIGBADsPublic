@@ -508,7 +508,7 @@ async def slack_approve_comment(comment_id: str, authorization_token: str, revie
     file_reader = json_object['Body'].read().decode("utf-8")
     file_reader = json.loads(file_reader)
 
-    htmlstring = "<html><body><H2>Slackbot</h2><ul><li>stage 2 - json "+key0+" retrieved and loaded</li>"
+    htmlstring = htmlstring+" <li>stage 2 - json "+key0+" retrieved and loaded</li>"
 
     created = str(file_reader["created"])[0:19]
     approved = str(datetime.datetime.now())[0:19]
@@ -525,7 +525,7 @@ async def slack_approve_comment(comment_id: str, authorization_token: str, revie
         email = str(file_reader["email"])
     dbRow = "('"+created+"','"+approved+"','"+dashboard+"','"+table+"','"+subject+"','"+message+"','"+name+"','"+email+"',"+isPublic+",'"+reviewer+"')"
 
-    htmlstring = htmlstring + "<li>stage 2 - json decoded from comment_id</li>"
+    htmlstring = htmlstring + " <li>stage 2 - json decoded from comment_id</li>"
 
     #
     # Get database information
