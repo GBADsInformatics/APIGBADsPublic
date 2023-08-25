@@ -495,6 +495,9 @@ async def slack_approve_comment(comment_id: str, authorization_token: str, revie
         logging.error("Cannot connect to S3 as resource")
         htmlMsg = rds.generateHTMLErrorMessage("Cannot connect to S3 as resource: "+access+" and "+secret)
         return HTMLResponse(htmlMsg)
+    
+    htmlstring = "<html><body><H2>Slackbot</h2><ul><li>stage 1 good</li>"
+
     #
     # Extract information from the json file and construct a database table entry
     #
@@ -518,17 +521,23 @@ async def slack_approve_comment(comment_id: str, authorization_token: str, revie
         name = str(file_reader["name"])
         email = str(file_reader["email"])
     dbRow = "('"+created+"','"+approved+"','"+dashboard+"','"+table+"','"+subject+"','"+message+"','"+name+"','"+email+"',"+isPublic+",'"+reviewer+"')"
+
+    htmlstring = htmlstring + "<li>stage 2 - json decoded from comment_id</li>"
+
     #
     # Get database information
     #
-    key1 = "information/database.json"
-    json_object1 = s3_client.get_object(Bucket=bucket,Key=key1)
-    file_reader1 = json_object1['Body'].read().decode("utf-8")
-    file_reader1 = json.loads(file_reader1)
-    db_host = str(file_reader1["DBHOST"])
-    db_name = str(file_reader1["DBNAME"])
-    db_user = str(file_reader1["DBUSER"])
-    db_pass = str(file_reader1["DBPASS"])
+#    key1 = "information/database.json"
+#    json_object1 = s3_client.get_object(Bucket=bucket,Key=key1)
+#    file_reader1 = json_object1['Body'].read().decode("utf-8")
+#    file_reader1 = json.loads(file_reader1)
+#    db_host = str(file_reader1["DBHOST"])
+#    db_name = str(file_reader1["DBNAME"])
+#    db_user = str(file_reader1["DBUSER"])
+#    db_pass = str(file_reader1["DBPASS"])
+
+#    htmlstring = htmlstring + "<li>stage 3 - json decoded from database info</li>"
+
     #
     # Create connection and cursor to database and insert new record
     #
@@ -558,7 +567,8 @@ async def slack_approve_comment(comment_id: str, authorization_token: str, revie
         ret = s3f.s3Delete ( s3_client, bucket, sourceObj )
         if ret == 0:
             logging.info("S3 Approve successful")
-            htmlstring = "<html><body><H3>GBADs S3 Slack Approve Comment</h3></body></html>"
+            #htmlstring = "<html><body><H3>GBADs S3 Slack Approve Comment</h3></body></html>"
+            htmlstring = htmlstring + "<li>stage 4 - move done</li></ul></body></html>"
             return HTMLResponse(htmlstring)
         else:
             logging.error("S3 Delete not successful")
