@@ -504,31 +504,28 @@ async def slack_approve_comment(comment_id: str, authorization_token: str, revie
     bucket = "gbads-comments"
     srcFolder = "underreview/"
     key0 = srcFolder+comment_id
-    htmlstring = "<html><body><H2>Slackbot</h2><ul><li>stage 2 - json file: "+key0+" </li>"
-    return HTMLResponse(htmlstring)
-
     json_object = s3_client.get_object(Bucket=bucket,Key=key0)
     file_reader = json_object['Body'].read().decode("utf-8")
     file_reader = json.loads(file_reader)
 
-    htmlstring = "<html><body><H2>Slackbot</h2><ul><li>stage 2 - json retrieved and loaded</li>"
+    htmlstring = "<html><body><H2>Slackbot</h2><ul><li>stage 2 - json "+key0+" retrieved and loaded</li>"
 
-#    created = str(file_reader["created"])[0:19]
-#    approved = str(datetime.datetime.now())[0:19]
-#    dashboard = str(file_reader["dashboard"])
-#    table = str(file_reader["table"])
-#    subject = str(file_reader["subject"])
-#    message = str(file_reader["message"])
-#    isPublic = str(file_reader["isPublic"]).upper()
-#    if isPublic == "FALSE":
-#        name = "NULL"
-#        email = "NULL"
-#    else:
-#        name = str(file_reader["name"])
-#        email = str(file_reader["email"])
-#    dbRow = "('"+created+"','"+approved+"','"+dashboard+"','"+table+"','"+subject+"','"+message+"','"+name+"','"+email+"',"+isPublic+",'"+reviewer+"')"
+    created = str(file_reader["created"])[0:19]
+    approved = str(datetime.datetime.now())[0:19]
+    dashboard = str(file_reader["dashboard"])
+    table = str(file_reader["table"])
+    subject = str(file_reader["subject"])
+    message = str(file_reader["message"])
+    isPublic = str(file_reader["isPublic"]).upper()
+    if isPublic == "FALSE":
+        name = "NULL"
+        email = "NULL"
+    else:
+        name = str(file_reader["name"])
+        email = str(file_reader["email"])
+    dbRow = "('"+created+"','"+approved+"','"+dashboard+"','"+table+"','"+subject+"','"+message+"','"+name+"','"+email+"',"+isPublic+",'"+reviewer+"')"
 
-#    htmlstring = htmlstring + "<li>stage 2 - json decoded from comment_id</li>"
+    htmlstring = htmlstring + "<li>stage 2 - json decoded from comment_id</li>"
 
     #
     # Get database information
