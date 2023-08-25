@@ -501,12 +501,13 @@ async def slack_approve_comment(comment_id: str, authorization_token: str, revie
     #
     # Extract information from the json file and construct a database table entry
     #
-#    bucket = "gbads-comments"
-#    srcFolder = "underreview/"
-#    key0 = srcFolder+comment_id
-#    json_object = s3_client.get_object(Bucket=bucket,Key=key0)
-#    file_reader = json_object['Body'].read().decode("utf-8")
-#    file_reader = json.loads(file_reader)
+    key0 = srcFolder+comment_id
+    json_object = s3_client.get_object(Bucket=bucket,Key=key0)
+    file_reader = json_object['Body'].read().decode("utf-8")
+    file_reader = json.loads(file_reader)
+
+    htmlstring = "<html><body><H2>Slackbot</h2><ul><li>stage 2 - json retrieved and loaded</li>"
+
 #    created = str(file_reader["created"])[0:19]
 #    approved = str(datetime.datetime.now())[0:19]
 #    dashboard = str(file_reader["dashboard"])
