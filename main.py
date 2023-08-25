@@ -504,45 +504,43 @@ async def slack_approve_comment(comment_id: str, authorization_token: str, revie
     bucket = "gbads-comments"
     srcFolder = "underreview/"
     key0 = srcFolder+comment_id
-    
-    htmlstring = htmlstring+" <li>stage 2a - json "+key0+" starting...</li>"
-
     json_object = s3_client.get_object(Bucket=bucket,Key=key0)
     file_reader = json_object['Body'].read().decode("utf-8")
     file_reader = json.loads(file_reader)
 
     htmlstring = htmlstring+" <li>stage 2a - json "+key0+" retrieved and loaded</li>"
 
-#    created = str(file_reader["created"])[0:19]
-#    approved = str(datetime.datetime.now())[0:19]
-#    dashboard = str(file_reader["dashboard"])
-#    table = str(file_reader["table"])
-#    subject = str(file_reader["subject"])
-#    message = str(file_reader["message"])
-#    isPublic = str(file_reader["isPublic"]).upper()
-#    if isPublic == "FALSE":
-#        name = "NULL"
-#        email = "NULL"
-#    else:
-#        name = str(file_reader["name"])
-#        email = str(file_reader["email"])
-#    dbRow = "('"+created+"','"+approved+"','"+dashboard+"','"+table+"','"+subject+"','"+message+"','"+name+"','"+email+"',"+isPublic+",'"+reviewer+"')"
+    created = str(file_reader["created"])[0:19]
+    approved = str(datetime.datetime.now())[0:19]
+    dashboard = str(file_reader["dashboard"])
+    table = str(file_reader["table"])
+    subject = str(file_reader["subject"])
+    message = str(file_reader["message"])
+    isPublic = str(file_reader["isPublic"]).upper()
+    if isPublic == "FALSE":
+        name = "NULL"
+        email = "NULL"
+    else:
+        name = str(file_reader["name"])
+        email = str(file_reader["email"])
+    dbRow = "('"+created+"','"+approved+"','"+dashboard+"','"+table+"','"+subject+"','"+message+"','"+name+"','"+email+"',"+isPublic+",'"+reviewer+"')"
 
-#    htmlstring = htmlstring + " <li>stage 2 - json decoded from comment_id</li>"
+    htmlstring = htmlstring + " <li>stage 2b - json decoded from comment_id</li>"
 
     #
     # Get database information
     #
-#    key1 = "information/database.json"
-#    json_object1 = s3_client.get_object(Bucket=bucket,Key=key1)
-#    file_reader1 = json_object1['Body'].read().decode("utf-8")
-#    file_reader1 = json.loads(file_reader1)
-#    db_host = str(file_reader1["DBHOST"])
-#    db_name = str(file_reader1["DBNAME"])
-#    db_user = str(file_reader1["DBUSER"])
-#    db_pass = str(file_reader1["DBPASS"])
+    key1 = "information/database.json"
+    htmlstring = htmlstring+" <li>stage 3a - json "+key1+" started...</li>"
+    json_object1 = s3_client.get_object(Bucket=bucket,Key=key1)
+    file_reader1 = json_object1['Body'].read().decode("utf-8")
+    file_reader1 = json.loads(file_reader1)
+    db_host = str(file_reader1["DBHOST"])
+    db_name = str(file_reader1["DBNAME"])
+    db_user = str(file_reader1["DBUSER"])
+    db_pass = str(file_reader1["DBPASS"])
 
-#    htmlstring = htmlstring + "<li>stage 3 - json decoded from database info</li>"
+    htmlstring = htmlstring+" <li>stage 3a - json "+key1+" retrieved and decoded</li>"
 
     #
     # Create connection and cursor to database and insert new record
