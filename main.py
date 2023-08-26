@@ -512,7 +512,6 @@ async def slack_approve_comment(comment_id: str, authorization_token: str, revie
 
     created = str(file_reader["created"])[0:19]
     approved = str(datetime.datetime.now())[0:19]
-    approved = created
     dashboard = str(file_reader["dashboard"])
     table = str(file_reader["table"])
     subject = str(file_reader["subject"])
