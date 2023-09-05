@@ -523,7 +523,11 @@ async def slack_approve_comment(comment_id: str, authorization_token: str, revie
     else:
         name = str(file_reader["name"])
         email = str(file_reader["email"])
-    dbRow = "('"+created+"','"+approved+"','"+dashboard+"','"+table+"','"+subject+"','"+message+"','"+name+"','"+email+"',"+isPublic+",'"+reviewer+"')"
+    if len(reviewer) > 0:
+        dbRow = "('"+created+"','"+approved+"','"+dashboard+"','"+table+"','"+subject+"','"+message+"','"+name+"','"+email+"',"+isPublic+",'"+reviewer+"')"
+    else
+        reviewer = "Unknown"
+        dbRow = "('"+created+"','"+approved+"','"+dashboard+"','"+table+"','"+subject+"','"+message+"','"+name+"','"+email+"',"+isPublic+",'"+reviewer+"')"
 
     #htmlstring = htmlstring + " <li>stage 2b - json decoded from comment_id</li>"
 
