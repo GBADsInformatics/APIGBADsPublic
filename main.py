@@ -525,7 +525,7 @@ async def slack_approve_comment(comment_id: str, authorization_token: str, revie
         email = str(file_reader["email"])
     if len(reviewer) > 0:
         dbRow = "('"+created+"','"+approved+"','"+dashboard+"','"+table+"','"+subject+"','"+message+"','"+name+"','"+email+"',"+isPublic+",'"+reviewer+"')"
-    else
+    else:
         reviewer = "Unknown"
         dbRow = "('"+created+"','"+approved+"','"+dashboard+"','"+table+"','"+subject+"','"+message+"','"+name+"','"+email+"',"+isPublic+",'"+reviewer+"')"
 
