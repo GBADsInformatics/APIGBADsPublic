@@ -1,9 +1,19 @@
 # API_GBADsPublic
 RDS library routines and API functions to access the public GBADs database tables on AWS RDS
 
+### Starting the Virtual environment
+To create:
+```
+python3.9 -m venv env
+```
+To activate:
+```
+source env/bin/activate
+```
+
 ### Install the Python Dependencies :package:
 ```
-pip3 install -r requirements.txt`
+pip3 install -r requirements/requirements.txt
 ```
 
 ### Running the API (Development) :running_woman:

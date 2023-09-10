@@ -1,12 +1,12 @@
 FROM python:3.9
-
+EXPOSE 443
 WORKDIR /app
 
 RUN mkdir /app/logs
 RUN touch /app/logs/errors.txt
 RUN touch /app/logs/logs.txt
 
-COPY requirements.txt /app
+COPY requirements/requirements.txt /app
 RUN pip3 install -r requirements.txt
 
 COPY . /app
