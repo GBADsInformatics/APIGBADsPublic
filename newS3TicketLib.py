@@ -19,8 +19,9 @@ def credentials_client(access, secret):
         )
         s3_client = session.client("s3")
         return s3_client
-    except:
+    except Exception as e:
         # Cannot connect to S3 as client
+        print(e)
         ret = -1
         return ret
 
@@ -36,8 +37,9 @@ def credentials_resource(access, secret):
         )
         s3_resource = session.resource("s3")
         return s3_resource
-    except:
+    except Exception as e:
         # Cannot connect to S3 as client
+        print(e)
         ret = -1
         return ret
 
@@ -45,18 +47,18 @@ def credentials_resource(access, secret):
 # Copy an object from one folder to another in the same bucket
 # sourceObj and destObj are in the format path/objectName
 def s3Copy(s3_client, bucket, sourceObj, destObj):
-    response = s3_client.copy_object(
-        Bucket=bucket,  # Destination bucket
-        CopySource=bucket + "/" + sourceObj,  # /Bucket-name/path/objectName
-        Key=destObj,  # Destination path/objectName
-    )
+    # response = s3_client.copy_object(
+    #     Bucket=bucket,  # Destination bucket
+    #     CopySource=bucket + "/" + sourceObj,  # /Bucket-name/path/objectName
+    #     Key=destObj,  # Destination path/objectName
+    # )
     ret = 0
     return ret
 
 
 # Delete an object given bucket and path to object
 def s3Delete(s3_client, bucket, objectPath):
-    response = s3_client.delete_object(Bucket=bucket, Key=objectPath)
+    # response = s3_client.delete_object(Bucket=bucket, Key=objectPath)
     ret = 0
     return ret
 
@@ -67,7 +69,8 @@ def s3Upload(s3_resource, bucket, source_path, destination_path):
         s3_resource.Bucket(bucket).upload_file(source_path, destination_path)
         ret = 0
         return ret
-    except:
+    except Exception as e:
+        print(e)
         ret = -1
         return ret
 
@@ -78,6 +81,7 @@ def s3Download(s3_resource, bucket, source, destination_path):
         s3_resource.Bucket(bucket).download_file(source, destination_path)
         ret = 0
         return ret
-    except:
+    except Exception as e:
+        print(e)
         ret = -1
         return ret

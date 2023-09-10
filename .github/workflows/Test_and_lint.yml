@@ -19,7 +19,10 @@ jobs:
         python -m pip install --upgrade pip
         python -m pip install -r requirements/requirements.txt
         python -m pip install pip install -r requirements/test_reqs.txt
-        pip install nox
-    - name: Analysing the code with pylint, flake8, black, and pytest
+    - name: Linting the code with pylint and flake8
       run: |
-        nox
+        pylint . --disable=invalid-name
+        flake8 --exclude=env,__pycache__ --ignore=E501,W503
+    - name: Testing the code with pytest
+      run: |
+        pytest

@@ -1,16 +1,16 @@
-from fastapi import FastAPI, Response, BackgroundTasks, APIRouter
+from fastapi import FastAPI, BackgroundTasks, APIRouter
 from fastapi.responses import FileResponse, HTMLResponse
 from fastapi.responses import PlainTextResponse
 from typing import Optional
 from pathlib import Path
 import uvicorn
-import secure_rds as secure
-import rds_functions as rds
-import pandas as pd
+import APIGBADsPublic.secure_rds as secure
+import APIGBADsPublic.rds_functions as rds
+# import pandas as pd
 import os
 import logging
-import boto3
-import newS3TicketLib as s3f
+# import boto3
+import APIGBADsPublic.newS3TicketLib as s3f
 import jwt
 import datetime
 from cryptography.fernet import Fernet
@@ -36,6 +36,7 @@ def remove_file(path):
         logging.info("Successfully removed file")
     except Exception as e:
         logging.error("Failed to delete %s." % path)
+        print(e)
 
 
 #
@@ -57,7 +58,7 @@ logging.basicConfig(
 # Used to access the data portal screen
 @router.get("/", include_in_schema=False)
 @router.head("/", include_in_schema=False)
-def home():
+def main():
     logging.info("Main endpoint accessed (/)")
     return "Welcome to the public GBADs database tables!"
 
@@ -80,18 +81,18 @@ async def get_public_tables(public: str, format: Optional[str] = "html"):
         conn = secure.connect_public()
         cur = conn.cursor()
         logging.info("Connected to GBAD database")
-    except:
+    except Exception as e:
         logging.error("Error connecting to GBAD database")
-        htmlMsg = rds.generateHTMLErrorMessage("Error connecting to Database")
+        htmlMsg = rds.generateHTMLErrorMessage("Error connecting to Database: " + str(e))
         return HTMLResponse(htmlMsg)
 
     # Get the list of tables from the database
     logging.info("Fetching tables")
     try:
         tables = rds.displayTables(cur)
-    except:
+    except Exception as e:
         logging.error("Error fetching tables")
-        htmlMsg = rds.generateHTMLErrorMessage("Error fetching tables")
+        htmlMsg = rds.generateHTMLErrorMessage("Error fetching tables: " + str(e))
         return HTMLResponse(htmlMsg)
 
     fieldCount = len(tables)
@@ -135,18 +136,18 @@ async def get_public_table_fields(
         conn = secure.connect_public()
         cur = conn.cursor()
         logging.info("Connected to GBAD database")
-    except:
+    except Exception as e:
         logging.error("Error connecting to GBAD database")
-        htmlMsg = rds.generateHTMLErrorMessage("Error connecting to Database")
+        htmlMsg = rds.generateHTMLErrorMessage("Error connecting to Database: " + str(e))
         return HTMLResponse(htmlMsg)
 
     # Get table info
     logging.info("Fetching fields")
     try:
         fields = rds.displayTabInfo(cur, table_name)
-    except:
+    except Exception as e:
         logging.error("Error fetching fields")
-        htmlMsg = rds.generateHTMLErrorMessage("Error fetching fields")
+        htmlMsg = rds.generateHTMLErrorMessage("Error fetching fields: " + str(e))
         return HTMLResponse(htmlMsg)
 
     # Format table info int html format and the return string
@@ -199,18 +200,18 @@ async def get_db_query(
         conn = secure.connect_public()
         cur = conn.cursor()
         logging.info("Connected to GBAD database")
-    except:
+    except Exception as e:
         logging.error("Error connecting to GBAD database")
-        htmlMsg = rds.generateHTMLErrorMessage("Error connecting to Database")
+        htmlMsg = rds.generateHTMLErrorMessage("Error connecting to Database: " + str(e))
         return HTMLResponse(htmlMsg)
 
     # Get all fields if fields == *
     if fields == "*":
         try:
             newfields = rds.generateFieldNames(cur, table_name)
-        except:
+        except Exception as e:
             logging.error("Error fetching fields")
-            htmlMsg = rds.generateHTMLErrorMessage("Error fetching fields")
+            htmlMsg = rds.generateHTMLErrorMessage("Error fetching fields: " + str(e))
             return HTMLResponse(htmlMsg)
 
         # Format the fields into a string
@@ -236,10 +237,10 @@ async def get_db_query(
     if count == "no":
         try:
             returnedQuery = rds.query(cur, table_name, fields, query, joinstring, order)
-        except:
+        except Exception as e:
             logging.error("Error running the query")
             htmlMsg = rds.generateHTMLErrorMessage(
-                "Error in the given query. Please check the syntax and try again."
+                "Error in the given query. Please check the syntax and try again. " + str(e)
             )
             return HTMLResponse(htmlMsg)
 
@@ -249,10 +250,10 @@ async def get_db_query(
             returnedQuery = rds.countQuery(
                 cur, table_name, fields, query, joinstring, order
             )
-        except:
+        except Exception as e:
             logging.error("Error running the query")
             htmlMsg = rds.generateHTMLErrorMessage(
-                "Error in the given query. Please check the syntax and try again."
+                "Error in the given query. Please check the syntax and try again. " + str(e)
             )
             return HTMLResponse(htmlMsg)
 
@@ -325,9 +326,9 @@ async def get_population(
         conn = secure.connect_public()
         cur = conn.cursor()
         logging.info("Connected to GBAD database")
-    except:
+    except Exception as e:
         logging.error("Error connecting to GBAD database")
-        htmlMsg = rds.generateHTMLErrorMessage("Error connecting to Database")
+        htmlMsg = rds.generateHTMLErrorMessage("Error connecting to Database: " + str(e))
         return HTMLResponse(htmlMsg)
 
     logging.info("Formatting query")
@@ -401,10 +402,10 @@ async def get_population(
     try:
         returnedQuery = rds.query(cur, table_name, fields, query, joinstring)
         logging.info("Query returned")
-    except:
+    except Exception as e:
         logging.error("Error running query")
         htmlstring = rds.generateHTMLErrorMessage(
-            "Error in the given query. Please check the syntax and try again."
+            "Error in the given query. Please check the syntax and try again. " + str(e)
         )
         return HTMLResponse(htmlstring)
 
@@ -489,10 +490,10 @@ async def slack_approve_comment(
         fptr = open(key_filename, "rb")
         key = fptr.read()
         fptr.close()
-    except:
+    except Exception as e:
         logging.error("Bad information about public key filename")
         htmlMsg = rds.generateHTMLErrorMessage(
-            "Bad information about public key filename"
+            "Bad information about public key filename: " + str(e)
         )
         return HTMLResponse(htmlMsg)
     #
@@ -503,9 +504,9 @@ async def slack_approve_comment(
     try:
         decoded = jwt.decode(authorization_token, key, algorithms=["RS256"])
         logging.info("Valid JSON Web Token")
-    except:
+    except Exception as e:
         logging.error("Invalid JSON Web Token")
-        htmlMsg = rds.generateHTMLErrorMessage("Invalid JSON Web Token")
+        htmlMsg = rds.generateHTMLErrorMessage("Invalid JSON Web Token: " + str(e))
         return HTMLResponse(htmlMsg)
     #
     # Check to see if the JWT payload is valid
@@ -719,10 +720,10 @@ def slack_deny_comment(comment_id: str, authorization_token: str):
         fptr = open(key_filename, "rb")
         key = fptr.read()
         fptr.close()
-    except:
+    except Exception as e:
         logging.error("Bad information about public key filename")
         htmlMsg = rds.generateHTMLErrorMessage(
-            "Bad information about public key filename"
+            "Bad information about public key filename: " + str(e)
         )
         return HTMLResponse(htmlMsg)
     #
@@ -733,9 +734,9 @@ def slack_deny_comment(comment_id: str, authorization_token: str):
     try:
         decoded = jwt.decode(authorization_token, key, algorithms=["RS256"])
         logging.info("Valid JSON Web Token")
-    except:
+    except Exception as e:
         logging.error("Invalid JSON Web Token")
-        htmlMsg = rds.generateHTMLErrorMessage("Invalid JSON Web Token")
+        htmlMsg = rds.generateHTMLErrorMessage("Invalid JSON Web Token: " + str(e))
         return HTMLResponse(htmlMsg)
     #
     # Check to see if the JWT payload is valid

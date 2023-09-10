@@ -9,7 +9,7 @@
 #
 # Libraries
 #
-import psycopg2 as ps
+# import psycopg2 as ps
 from typing import Optional
 
 
@@ -250,7 +250,7 @@ def execute(cur, querystring):
 
 def generateFieldNames(cur, tablename):
     cur.execute("SELECT * FROM %s" % (tablename))
-    rows = cur.fetchone()
+    # rows = cur.fetchone()
     colunmnames = [desc[0] for desc in cur.description]
     return colunmnames
 
