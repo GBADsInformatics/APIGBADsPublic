@@ -11,7 +11,7 @@ cryptography==41.0.2
 Deprecated==1.2.14
 jmespath==1.0.1
 jwcrypto==1.5.0
-numpy==1.25.1
+numpy==1.24.4
 pycparser==2.21
 PyJWT==2.7.0
 python-dateutil==2.8.2
