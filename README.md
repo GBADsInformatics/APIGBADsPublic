@@ -17,6 +17,7 @@ pip3 install -r requirements/requirements.txt
 ```
 
 ### Running the API (Development) :running_woman:
+You need AWS credentials to run this project, ask for the info.conf and key.conf to run locally.
 ```
 uvicorn main:app --reload
 ```
@@ -27,8 +28,15 @@ http://localhost:9000/dataportal/
 
 
 ### Running in Docker (Production) :sailboat:
-run `docker run -d -p 9000:8000 gbadsinformatics/api`
-You can access it at port 8000 of your machine. (change the '9000' to run the api on a different port)
+run:
+```bash
+docker run -d -p 80:80 \
+   -e MAJOR_INFO1=info1 \
+   -e MAJOR_INFO2=info2 \
+   -e MAJOR_KEY=key \
+   gbadsinformatics/api
+```
+You can access it at port 80 of your machine.
 
 
 ### How to Use the Postman Test Runner

@@ -4,13 +4,13 @@ from fastapi.responses import PlainTextResponse
 from typing import Optional
 from pathlib import Path
 import uvicorn
-import APIGBADsPublic.secure_rds as secure
-import APIGBADsPublic.rds_functions as rds
+import secure_rds as secure
+import rds_functions as rds
 # import pandas as pd
 import os
 import logging
 # import boto3
-import APIGBADsPublic.newS3TicketLib as s3f
+import newS3TicketLib as s3f
 import jwt
 import datetime
 from cryptography.fernet import Fernet
@@ -43,6 +43,10 @@ def remove_file(path):
 # Loads the key into key.conf
 #
 def load_key():
+    if os.environ.get("MAJOR_KEY", ""):
+        return os.environ.get("MAJOR_KEY", "")
+    else:
+        return open("MajorKey/key.conf", "rb").read()
     return open("key.conf", "rb").read()
 
 
@@ -530,9 +534,12 @@ async def slack_approve_comment(
     # initialize the Fernet class
     f = Fernet(key)
     # read the encrypted keys
-    with open("info.conf", "r") as info_file:
-        encrypt1 = info_file.readline().strip()
-        encrypt2 = info_file.readline().strip()
+    encrypt1 = os.environ.get("MAJOR_INFO1", "")
+    encrypt2 = os.environ.get("MAJOR_INFO2", "")
+    if not encrypt1:
+        with open("info.conf", "r") as info_file:
+            encrypt1 = info_file.readline().strip()
+            encrypt2 = info_file.readline().strip()
 
     access = f.decrypt(encrypt1.encode("utf-8")).decode("utf-8")
     secret = f.decrypt(encrypt2.encode("utf-8")).decode("utf-8")
@@ -760,9 +767,12 @@ def slack_deny_comment(comment_id: str, authorization_token: str):
     # initialize the Fernet class
     f = Fernet(key)
     # read the encrypted keys
-    with open("info.conf", "r") as info_file:
-        encrypt1 = info_file.readline().strip()
-        encrypt2 = info_file.readline().strip()
+    encrypt1 = os.environ.get("MAJOR_INFO1", "")
+    encrypt2 = os.environ.get("MAJOR_INFO2", "")
+    if not encrypt1:
+        with open("info.conf", "r") as info_file:
+            encrypt1 = info_file.readline().strip()
+            encrypt2 = info_file.readline().strip()
 
     access = f.decrypt(encrypt1.encode("utf-8")).decode("utf-8")
     secret = f.decrypt(encrypt2.encode("utf-8")).decode("utf-8")
