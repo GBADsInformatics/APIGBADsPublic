@@ -25,16 +25,11 @@ jobs:
     needs: [commit-hash, docker]
     uses: GBADsInformatics/DevopsWorkflows/.github/workflows/aws.yml@v2.0
     secrets:
-      AWS_ACCESS_KEY_ID:
-        required: true
-      AWS_SECRET_ACCESS_KEY:
-        required: true
-      MAJOR_INFO1:
-        required: true
-      MAJOR_INFO2:
-        required: true
-      MAJOR_KEY:
-        required: true
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      MAJOR_INFO1: ${{ secrets.MAJOR_INFO1 }}
+      MAJOR_INFO2: ${{ secrets.MAJOR_INFO2 }}
+      MAJOR_KEY: ${{ secrets.MAJOR_KEY }}
     with:
       stack-name: api-stack
       template-inputs: >-
