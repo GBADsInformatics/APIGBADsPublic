@@ -25,17 +25,14 @@ jobs:
     needs: [commit-hash, docker]
     uses: GBADsInformatics/DevopsWorkflows/.github/workflows/aws.yml@v2.0
     secrets: inherit
-    env:
-      MAJOR_INFO1: ${{ secrets.MAJOR_INFO1 }}
-      MAJOR_INFO2: ${{ secrets.MAJOR_INFO2 }}
-      MAJOR_KEY: ${{ secrets.MAJOR_KEY }}
     with:
       stack-name: api-stack
+      test: ${{ secrets.MAJOR_KEY }}
       template-inputs: >-
         ApplicationName=api,
         DockerURI=gbadsinformatics/api:${{ needs.commit-hash.outputs.sha7 }},
         BaseURL=/api,
         ListenerRulePriority=2,
-        MajorInfo1=${{ env.MAJOR_INFO1 }},
-        MajorInfo2=${{ env.MAJOR_INFO2 }},
-        MajorKey=${{ env.MAJOR_KEY }}
+        MajorInfo1=${{ secrets.MAJOR_INFO1 }},
+        MajorInfo2=${{ secrets.MAJOR_INFO2 }},
+        MajorKey=${{ secrets.MAJOR_KEY }}
