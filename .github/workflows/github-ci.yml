@@ -1,22 +1,8 @@
 on:
   push:
     branches: [ "main" , "master" ]
-    secrets:
-      MAJOR_INFO1:
-        required: true
-      MAJOR_INFO2:
-        required: true
-      MAJOR_KEY:
-        required: true
 
   workflow_dispatch:
-    secrets:
-      MAJOR_INFO1:
-        required: true
-      MAJOR_INFO2:
-        required: true
-      MAJOR_KEY:
-        required: true
   
 jobs:
   commit-hash:
@@ -38,7 +24,6 @@ jobs:
   aws:
     needs: [commit-hash, docker]
     uses: GBADsInformatics/DevopsWorkflows/.github/workflows/aws.yml@v2.0
-    secrets: inherit
     with:
       stack-name: api-stack
       template-inputs: >-
