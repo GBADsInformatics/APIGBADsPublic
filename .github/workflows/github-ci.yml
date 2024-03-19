@@ -33,5 +33,7 @@ jobs:
         MajorInfo1=${{ secrets.MAJOR_INFO1 }},
         MajorInfo2=${{ secrets.MAJOR_INFO2 }},
         MajorKey=${{ secrets.MAJOR_KEY }}
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
     with:
       stack-name: api-stack
