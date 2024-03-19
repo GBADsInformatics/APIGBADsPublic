@@ -35,11 +35,3 @@ jobs:
         MajorKey=${{ secrets.MAJOR_KEY }}
     with:
       stack-name: api-stack
-      template-inputs: >-
-        ApplicationName=api,
-        DockerURI=gbadsinformatics/api:${{ needs.commit-hash.outputs.sha7 }},
-        BaseURL=/api,
-        ListenerRulePriority=2,
-        MajorInfo1=${{ secrets.MAJOR_INFO1 }},
-        MajorInfo2=${{ secrets.MAJOR_INFO2 }},
-        MajorKey=${{ secrets.MAJOR_KEY }}
