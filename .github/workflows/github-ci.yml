@@ -24,10 +24,8 @@ jobs:
   aws:
     needs: [commit-hash, docker]
     uses: GBADsInformatics/DevopsWorkflows/.github/workflows/aws.yml@v2.0
-    secrets: inherit
     with:
       stack-name: api-stack
-      test: ${{ secrets.MAJOR_KEY }}
       template-inputs: >-
         ApplicationName=api,
         DockerURI=gbadsinformatics/api:${{ needs.commit-hash.outputs.sha7 }},
