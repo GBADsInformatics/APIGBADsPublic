@@ -85,3 +85,37 @@ def s3Download(s3_resource, bucket, source, destination_path):
         print(e)
         ret = -1
         return ret
+
+
+def upload_fileobj(s3_client, bucket, object_name, fileobj):
+    """
+    Upload a file-like object to S3.
+    :param s3_client: boto3 S3 client
+    :param bucket: S3 bucket name
+    :param object_name: S3 object key
+    :param fileobj: file-like object to upload
+    :return: 0 on success, -1 on failure
+    """
+    try:
+        s3_client.upload_fileobj(fileobj, bucket, object_name)
+        return 0
+    except Exception as e:
+        print(e)
+        return -1
+
+
+def download_file(s3_client, bucket, object_name):
+    """
+    Download an object from S3 and return its bytes.
+    :param s3_client: boto3 S3 client
+    :param bucket: S3 bucket name
+    :param object_name: S3 object key
+    :return: bytes of the file, or None on failure
+    """
+    try:
+        response = s3_client.get_object(Bucket=bucket, Key=object_name)
+        return response
+    except Exception as e:
+        print(e)
+        return None
+

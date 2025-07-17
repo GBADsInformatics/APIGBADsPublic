@@ -821,6 +821,86 @@ def slack_deny_comment(comment_id: str, authorization_token: str):
         htmlMsg = rds.generateHTMLErrorMessage("S3 Copy not successful")
         return HTMLResponse(htmlMsg)
 
+@app.post("/s3/upload", tags=["S3 DPM Endpoints"])
+async def upload_file(bucket_name: str = Form(...), object_name: str = Form(...), file: UploadFile = File(...)):
+    key = load_key()
+    f = Fernet(key)
+    encrypt1 = os.environ.get("MAJOR_INFO1", "")
+    encrypt2 = os.environ.get("MAJOR_INFO2", "")
+    if not encrypt1:
+        with open("info.conf", "r") as info_file:
+            encrypt1 = info_file.readline().strip()
+            encrypt2 = info_file.readline().strip()
+
+    access = f.decrypt(encrypt1.encode("utf-8")).decode("utf-8")
+    secret = f.decrypt(encrypt2.encode("utf-8")).decode("utf-8")
+
+    #  Access AWS Credentials and establish session as a client and resource
+    s3_client = s3f.credentials_client(access, secret)
+    if s3_client == -1:
+        logging.error("Cannot connect to S3 as client")
+        htmlMsg = rds.generateHTMLErrorMessage("Cannot connect to S3 as client")
+        return HTMLResponse(htmlMsg)
+    s3_resource = s3f.credentials_resource(access, secret)
+    if s3_resource == -1:
+        logging.error("Cannot connect to S3 as resource")
+        htmlMsg = rds.generateHTMLErrorMessage(
+            "Cannot connect to S3 as resource: " + access + " and " + secret
+        )
+        return HTMLResponse(htmlMsg)
+
+    try:
+        # Upload the file to S3
+        s3f.upload_file(s3_client, bucket_name, object_name, file.file)
+        return {"message": "File uploaded successfully"}
+    except NoCredentialsError:
+        raise HTTPException(status_code=500, detail="AWS credentials not available")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"An error occurred: {str(e)}")
+
+@app.get("/s3/download", tags=["S3 DPM Endpoints"])
+async def download_file(bucket_name: str, object_name: str):
+    key = load_key()
+    f = Fernet(key)
+    encrypt1 = os.environ.get("MAJOR_INFO1", "")
+    encrypt2 = os.environ.get("MAJOR_INFO2", "")
+    if not encrypt1:
+        with open("info.conf", "r") as info_file:
+            encrypt1 = info_file.readline().strip()
+            encrypt2 = info_file.readline().strip()
+
+    access = f.decrypt(encrypt1.encode("utf-8")).decode("utf-8")
+    secret = f.decrypt(encrypt2.encode("utf-8")).decode("utf-8")
+
+    #  Access AWS Credentials and establish session as a client and resource
+    s3_client = s3f.credentials_client(access, secret)
+    if s3_client == -1:
+        logging.error("Cannot connect to S3 as client")
+        htmlMsg = rds.generateHTMLErrorMessage("Cannot connect to S3 as client")
+        return HTMLResponse(htmlMsg)
+    s3_resource = s3f.credentials_resource(access, secret)
+    if s3_resource == -1:
+        logging.error("Cannot connect to S3 as resource")
+        htmlMsg = rds.generateHTMLErrorMessage(
+            "Cannot connect to S3 as resource: " + access + " and " + secret
+        )
+        return HTMLResponse(htmlMsg)
+    
+    try:
+        response = s3f.download_file(s3_client, bucket_name, object_name)
+        if response is None:
+            raise HTTPException(status_code=404, detail="File not found")
+        return StreamingResponse(
+            response['Body'].iter_chunks(),
+            media_type=response['ContentType'],
+            headers={"Content-Disposition": f"attachment; filename={object_name}"}
+        )
+    except NoCredentialsError:
+        raise HTTPException(status_code=500, detail="AWS credentials not available")
+    except s3.exceptions.NoSuchKey as e:
+        raise HTTPException(status_code=404, detail=f"Object not found: {object_name}")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"An error occurred: {str(e)}")
 
 # This router allows a custom path to be used for the API
 app.include_router(router)
