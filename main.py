@@ -853,7 +853,7 @@ async def upload_file(bucket_name: str = Form(...), object_name: str = Form(...)
 
     try:
         # Upload the file to S3
-        s3f.upload_file(s3_client, bucket_name, object_name, file.file)
+        s3f.upload_fileobj(s3_client, bucket_name, object_name, file.file)
         return {"message": "File uploaded successfully"}
     except NoCredentialsError:
         raise HTTPException(status_code=500, detail="AWS credentials not available")
