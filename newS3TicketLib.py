@@ -118,4 +118,3 @@ def download_file(s3_client, bucket, object_name):
     except Exception as e:
         print(e)
         return None
-
