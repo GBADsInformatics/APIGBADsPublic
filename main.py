@@ -823,7 +823,7 @@ def slack_deny_comment(comment_id: str, authorization_token: str):
         return HTMLResponse(htmlMsg)
 
 
-@app.post("/s3/upload", tags=["S3 DPM Endpoints"])
+@router.post("/s3/upload", tags=["S3 DPM Endpoints"])
 async def upload_file(bucket_name: str = Form(...), object_name: str = Form(...), file: UploadFile = File(...)):
     key = load_key()
     f = Fernet(key)
@@ -861,7 +861,7 @@ async def upload_file(bucket_name: str = Form(...), object_name: str = Form(...)
         raise HTTPException(status_code=500, detail=f"An error occurred: {str(e)}")
 
 
-@app.get("/s3/download", tags=["S3 DPM Endpoints"])
+@router.get("/s3/download", tags=["S3 DPM Endpoints"])
 async def download_file(bucket_name: str, object_name: str):
     key = load_key()
     f = Fernet(key)
