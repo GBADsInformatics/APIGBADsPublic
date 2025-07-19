@@ -25,7 +25,7 @@ class S3Adapter:
             logging.error("Error initializing S3 client: %s", exc)
             raise
 
-    def upload(self, bucket: str, object_name: str, filepath: str = None, fileobj: Optional[IO.BinaryIO] = None) -> None:
+    def upload(self, bucket: str, object_name: str, filepath: str = None, fileobj: Optional[IO[bytes]] = None) -> None:
         """
         Upload a file to an S3 bucket.
         :param bucket: S3 bucket name
