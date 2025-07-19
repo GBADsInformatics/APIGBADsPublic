@@ -1,5 +1,5 @@
 from fastapi.testclient import TestClient
-from APIGBADsPublic.main import router
+from app.main import router
 
 client = TestClient(router)
 
