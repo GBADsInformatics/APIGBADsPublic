@@ -1,4 +1,4 @@
-FROM python:3.9
+FROM python:3.13
 WORKDIR /app
 
 COPY requirements/requirements.txt /app
@@ -6,4 +6,4 @@ RUN pip3 install -r requirements.txt
 
 COPY . /app
 
-CMD ["uvicorn", "app.main:app", "--workers", "2", "--host=0.0.0.0", "--port", "80"]
+CMD ["uvicorn", "app.main:app", "--host=0.0.0.0", "--port", "80"]
