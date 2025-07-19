@@ -1,3 +1,14 @@
 [tool.pylint]
 max-line-length = 120
-disable = ["C0114","W0622"]
+disable = [
+    "C0114",  # missing-module-docstring
+    "W0622",  # redefined-builtin
+    "C0301",  # line-too-long
+    "R0913",  # too-many-arguments
+    "R1705",  # no-else-return
+    "R0912",  # too-many-branches
+    "R0914",  # too-many-locals
+    "C0103",  # invalid-name
+    "W0613",  # unused-argument
+    "E1101",  # no-member
+]
