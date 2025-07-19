@@ -1,7 +1,8 @@
 import io
 from fastapi.responses import HTMLResponse, PlainTextResponse, StreamingResponse
 
-def format_table(data, column_names=None, html_title=None, html_subtitle=None, format="html", dimensions=2, download_filename='table'): # noqa: R0912, R0913, R0917
+
+def format_table(data, column_names=None, html_title=None, html_subtitle=None, format="html", dimensions=2, download_filename='table'):
     """
     Format data into a table for different output formats.
 

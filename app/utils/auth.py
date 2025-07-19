@@ -1,6 +1,7 @@
 from fastapi import HTTPException
 import jwt
 
+
 class SlackJWTVerifier:
     """
     A class to verify Slack JWT tokens for specific applications and tasks.

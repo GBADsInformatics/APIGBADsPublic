@@ -35,7 +35,7 @@ jobs:
         RdsPublicHost=${{ secrets.RDS_PUBLIC_HOST }},
         RdsPublicName=${{ secrets.RDS_PUBLIC_NAME }},
         RdsPublicUser=${{ secrets.RDS_PUBLIC_USER }},
-        RdsPublicPass=${{ secrets.RDS_PUBLIC_PASS }}
+        RdsPublicPass=${{ secrets.RDS_PUBLIC_PASS }},
         S3_USER_KEY=${{ secrets.S3_USER_KEY }},
         S3_USER_SECRET=${{ secrets.S3_USER_SECRET }},
         S3_USER_REGION=${{ secrets.S3_USER_REGION }}

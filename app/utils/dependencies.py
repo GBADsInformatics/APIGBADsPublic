@@ -1,6 +1,8 @@
 import os
+from typing import Callable
 from app.adapters.s3_adapter import S3Adapter
 from app.adapters.rds_adapter import RDSAdapter
+
 
 def get_s3_adapter() -> S3Adapter:
     """
@@ -16,7 +18,8 @@ def get_s3_adapter() -> S3Adapter:
         region=region
     )
 
-def get_rds_adapter(db_host: str, db_name: str, db_user: str, db_password: str) -> RDSAdapter:
+
+def get_rds_adapter(db_host: str, db_name: str, db_user: str, db_password: str) -> Callable[[], RDSAdapter]:
     """
     This function is used to inject the RDSAdapter dependency into FastAPI endpoints.
     Returns: RDSAdapter: An instance of RDSAdapter.
