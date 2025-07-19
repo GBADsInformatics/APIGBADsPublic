@@ -12,3 +12,5 @@ disable = [
     "W0613",  # unused-argument
     "E1101",  # no-member
 ]
+[tool.pytest.ini_options]
+addopts = "-v"

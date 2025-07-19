@@ -25,7 +25,11 @@ async def approve_comment(
     s3_adapter: S3Adapter = Depends(get_s3_adapter),
 ):
     """
-    Approve a comment and move it to the approved folder.
+    Approve a comment and move it to the approved folder.\n
+    :param comment_id: The ID of the comment to approve.\n
+    :param authorization_token: The JWT token for authorization.\n
+    :param reviewer: Optional name of the reviewer approving the comment.\n
+    :return: A message indicating success or failure.
     """
     try:
         comment_file = s3_adapter.download(
@@ -99,7 +103,10 @@ async def deny_comment(
     s3_adapter: S3Adapter = Depends(get_s3_adapter),
 ):
     """
-    Deny a comment and move it to the denied folder.
+    Deny a comment and move it to the denied folder.\n
+    :param comment_id: The ID of the comment to deny.\n
+    :param authorization_token: The JWT token for authorization.\n
+    :return: A message indicating success or failure.
     """
     try:
         # Move the comment file to the denied folder

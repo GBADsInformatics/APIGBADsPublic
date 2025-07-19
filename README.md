@@ -3,8 +3,13 @@ Get started with our [GBADs API Swagger Docs](https://gbadske.org/api/docs)
 
 This is our API for accessing GBADs public database tables and supporting functionality of our other apps.
 
-## API File Structure
+## Contribution Guidelines
+- Create unit tests for new code you write!
+- Create a new Adapter (with reusable functions) when integrating with a new external source
+- Create a new endpoints file when working on a new set of endpoints.
+- Merge into master with pull requests - get your code reviewed if possible.
 
+## API File Structure
 ```
 📦 APIGBADsPublic/
  ├── .aws/                          # AWS Resources
@@ -30,7 +35,7 @@ This is our API for accessing GBADs public database tables and supporting functi
 ```
 
 ## Developing Locally :computer:
-### Starting the Virtual Environment
+### Starting the Virtual Environment :floppy_disk:
 To create:
 ```bash
 python3 -m venv env
@@ -43,23 +48,24 @@ source env/bin/activate
 ### Install the Python Dependencies :package:
 ```bash
 pip3 install -r requirements/requirements.txt
+pip3 install -r requirements/requirements-test.txt # if running tests/linting
 ```
 
-### Running the API :running_woman:
-> Export only the required variables for your development.
+### Running the API for Development :running_woman:
+> You only need to load the variables depending on the endpoint(s) you'll be working on.
 
 Load these if you'll be running the Knowledge Engine database endpoints
 ```bash
-export RDS_HOST=
-export RDS_NAME=
-export RDS_USER=
-export RDS_PASS=
+export RDS_HOST=rds_host_here
+export RDS_NAME=rds_db_name_here
+export RDS_USER=rds_username_here
+export RDS_PASS=rds_password_here
 ```
 Load these if you'll be running the DPM or Comments Endpoints
 ```bash
-export S3_USER_ACCESS_KEY_ID=
-export S3_USER_SECRET_ACCESS_KEY=
-export S3_USER_REGION=
+export S3_USER_ACCESS_KEY_ID=aws_key
+export S3_USER_SECRET_ACCESS_KEY=aws_secret_key
+export S3_USER_REGION=ca-central-1
 ```
 Start the API
 ```bash
@@ -70,8 +76,18 @@ uvicorn app.main:app --reload --port 8000
 Access the API in your web browser here:\
 http://localhost:8000/docs
 
+### Running Code Linter Locally :mag:
+> To avoid being blocked by the pipeline, run the linter and tests locally.
+```bash
+pylint app/
+```
 
-### Running in Docker :sailboat:
+### Running Unit Tests Locally :triangular_flag_on_post:
+```bash
+pytest .
+```
+
+### Running the API in Docker :sailboat:
 run:
 ```bash
 docker run -it
@@ -99,17 +115,7 @@ To run it select the collection under the 'Collections' tab and then select the 
 
 ** Note this is basic and just ensures that the APIs are running and arent failing due to a code error. It does not test the data returned by the APIs. **
 
-### Dashboard Comment Additions
-Now you can do actions on the GBADs Comment System:
-   1. /slack/approve - Saves the comment to RDS and moves the S3 file to `approved/`
-   2. /slack/deny - moves the file to `notapproved/`
-
-### S3 Additions - Primarily for the DPM
-Now you can access the GBADs S3 Storage - see the API Swagger Docs
-   1. /dpm/upload
-   2. /dpm/download
-
-#### Example Calls From each API
+#### Example Calls for the API
 1. ```http://localhost:8000/GBADsTables/public?format=html```
 2. ```http://localhost:8000/GBADsTable/public?table_name=livestock_production_faostat&format=html```
 3. ```http://localhost:8000/GBADsPublicQuery/livestock_production_faostat?fields=country,year,species,population&query=year=2017%20AND%20species=%27Goats%27&format=html```

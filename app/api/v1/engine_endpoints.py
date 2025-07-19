@@ -14,7 +14,8 @@ router = APIRouter()
 @router.get("/dataportal/")
 async def get_dataportal():
     """
-    Serve the dataportal HTML page.
+    Serve the dataportal HTML page for some additional documentation.\n
+    :return: HTMLResponse containing the dataportal page content.
     """
     dataportal_html = Path('app/public/dataportal.html').read_text(encoding="utf-8")
     return HTMLResponse(content=dataportal_html, status_code=200)
@@ -31,7 +32,10 @@ async def list_all_public_tables(
     ))
 ):
     """
-    List all tables in the GBADs public database.
+    List all tables in the GBADs public database.\n
+    It is used by the dataportal to generate the list of tables that are available for the user to query.\n
+    :param format: The format of the response. Can be 'text', 'csv', 'file', or 'html'.\n
+    :return: A formatted table of all public tables in the GBADs database.
     """
     tables = rds_adapter.list_tables()
     if not tables:
@@ -52,7 +56,10 @@ async def list_table_fields(
     ))
 ):
     """
-    List fields of a specific table in the GBADs public database.
+    List fields of a specific table in the GBADs public database.\n
+    :param table_name: The name of the table to list fields for.\n
+    :param format: The format of the response. Can be 'text', 'csv', 'file', or 'html'.\n
+    :return: A formatted table of fields in the specified table.
     """
     fields = rds_adapter.list_table_fields(table_name)
     if not fields:
@@ -81,7 +88,16 @@ async def public_query(
     ))
 ):
     """
-    Perform a query on the GBADs public database.
+    Perform a query on the GBADs public database.\n
+    :param table_name: The name of the table to query.\n
+    :param fields: The fields to select in the query. Use '*' for all fields.\n
+    :param query: The WHERE clause of the query.\n
+    :param join: Optional join clause in the format 'table1,table2,field1,field2'.\n
+    :param order: Optional ORDER BY clause.\n
+    :param format: The format of the response. Can be 'text', 'csv', 'file', or 'html'.\n
+    :param count: Whether to count the results. Default is 'no'.\n
+    :param pivot: Not implemented yet.\n
+    :return: A formatted table of the query results.
     """
     # Formatting Fields
     if fields == "*" and not join:
@@ -139,7 +155,14 @@ async def get_population(
     ))
 ):
     """
-    Get livestock population data from the GBADs public database.
+    Get livestock population data from the GBADs public database.\n
+    :param data_source: The data source to query. Can be 'oie' or 'faostat'.\n
+    :param format: The format of the response. Can be 'text', 'csv', 'file', or 'html'.\n
+    :param year: The year to filter by. Use '*' for all years.\n
+    :param iso3: The ISO3 code to filter by. Use '*' for all countries. (only for faostat)\n
+    :param country: The country name to filter by. Use '*' for all countries.\n
+    :param species: The species to filter by. Use '*' for all species.\n
+    :return: A formatted table of livestock population data.
     """
     # Validate data_source
     allowed_sources = {"oie", "faostat"}

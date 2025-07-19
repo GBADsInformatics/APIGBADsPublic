@@ -14,7 +14,11 @@ async def upload_file(
     s3_adapter: S3Adapter = Depends(get_s3_adapter)
 ):
     """
-    Upload a file to S3.
+    Upload a file to S3.\n
+    :param bucket_name: The name of the S3 bucket.\n
+    :param object_name: The name of the object in S3.\n
+    :param file: The file to upload.\n
+    :return: A message indicating success or failure.
     """
     try:
         s3_adapter.upload(bucket_name, object_name, fileobj=file.file)
@@ -29,7 +33,10 @@ async def download_file(
     s3_adapter: S3Adapter = Depends(get_s3_adapter)
 ):
     """
-    Download a file from S3.
+    Download a file from S3.\n
+    :param bucket_name: The name of the S3 bucket.\n
+    :param object_name: The name of the object in S3.\n
+    :return: A StreamingResponse to download the file.
     """
     try:
         file_content = s3_adapter.download(bucket_name, object_name)
