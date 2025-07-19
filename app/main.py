@@ -1,0 +1,49 @@
+"""
+This module sets up the FastAPI application for the GBADs public API.
+
+The application architecture includes endpoints, adapters, and utilities for database interactions.
+
+It includes the following components:
+- `engine_endpoints`: Handles queries to the GBADs public database.
+- `dpm_endpoints`: Manages endpoints related to the Dynamic Population Model.
+- `comments_endpoints`: Facilitates dashboard comments via Slack.
+
+Authors:
+    William Fitzjohn
+    Matthew Szurkowski
+    Deborah Stacey
+    Ian McKechnie
+"""
+
+import os
+from fastapi import FastAPI
+from app.api.v1 import dpm_endpoints, engine_endpoints, comments_endpoints
+
+BASE_URL = os.environ.get("BASE_URL", "")
+
+app = FastAPI(
+    docs_url=f"{BASE_URL}/docs",
+    openapi_url=f"{BASE_URL}/openapi.json",
+    title="GBADs Public API",
+    description="This is our API for accessing GBADs public database tables and related functionalities.\n\n" \
+                "See the [GBADs Knowledge Engine](https://gbadske.org) for more information about the project.\n\n" \
+                "The Knowledge Engine endpoints are public, but the DPM and comments endpoints require authentication.",
+    version="1.0.0",
+    contact={
+        "name": "GBADs Informatics Team",
+        "url": "https://gbadske.org/about/"
+    },
+    swagger_ui_parameters={"syntaxHighlight": {"theme": "obsidian"}}
+)
+
+app.include_router(engine_endpoints.router, prefix=f"{BASE_URL}", tags=["Knowledge Engine"])
+app.include_router(dpm_endpoints.router, prefix=f"{BASE_URL}/dpm", tags=["Dynamic Population Model"])
+app.include_router(comments_endpoints.router, prefix=f"{BASE_URL}/slack", tags=["Dashboard Comments"])
+
+@app.get(f"{BASE_URL}/", include_in_schema=False)
+@app.head(f"{BASE_URL}/", include_in_schema=False)
+async def root():
+    """
+    Root endpoint for the API.
+    """
+    return {"message": "Welcome to the public GBADs database tables!"}
