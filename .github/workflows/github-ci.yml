@@ -36,9 +36,9 @@ jobs:
         RdsPublicName=${{ secrets.RDS_PUBLIC_NAME }},
         RdsPublicUser=${{ secrets.RDS_PUBLIC_USER }},
         RdsPublicPass=${{ secrets.RDS_PUBLIC_PASS }},
-        S3_USER_KEY=${{ secrets.S3_USER_KEY }},
-        S3_USER_SECRET=${{ secrets.S3_USER_SECRET }},
-        S3_USER_REGION=${{ secrets.S3_USER_REGION }}
+        S3USERKEY=${{ secrets.S3_USER_KEY }},
+        S3USERSECRET=${{ secrets.S3_USER_SECRET }},
+        S3USERREGION=${{ secrets.S3_USER_REGION }}
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
     with:
