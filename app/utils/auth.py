@@ -1,27 +1,26 @@
 import os
 import jwt
-from fastapi import HTTPException, status
+from fastapi import HTTPException, status, Security
+from fastapi.security.api_key import APIKeyHeader
+
+api_key_header = APIKeyHeader(name="Authorization", auto_error=True)
 
 class DPMTokenVerifier:
-    """
-    A class to verify tokens for various api requests using aws
-    """
-    def __init__(self):
-        self.expected_token = os.getenv("DPM_AUTH_TOKEN")
-        if not self.expected_token:
-            raise RuntimeError("DPM_AUTH_TOKEN not set in environment")
+    def __init__(self, expected_token: str):
+        self.expected_token = expected_token
 
-    def verify(self, token: str) -> None:
+    async def __call__(self, api_key: str = Security(api_key_header)) -> None:
         """
-        Verifies the provided token against the expected DPM authorization token.
+        Verifies the bearer token from Authorization header.
 
-        Args:
-            token (str): The token provided in the Authorization header.
-
-        Raises:
-            HTTPException: If the token does not match the expected value, 
-                        an HTTP 401 Unauthorized error is raised.
+        Raises HTTPException 401 if token is missing or invalid.
         """
+        scheme, _, token = api_key.partition(" ")
+        if scheme.lower() != "bearer" or not token:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Authorization header must be in 'Bearer <token>' format",
+            )
         if token != self.expected_token:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
