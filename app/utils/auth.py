@@ -1,6 +1,22 @@
-from fastapi import HTTPException
 import jwt
+import os
+from fastapi import HTTPException, status
 
+class DPMTokenVerifier:
+    """
+    A class to verify tokens for various api requests using aws
+    """
+    def __init__(self):
+        self.expected_token = os.getenv("DPM_AUTH_TOKEN")
+        if not self.expected_token:
+            raise RuntimeError("DPM_AUTH_TOKEN not set in environment")
+
+    def verify(self, token: str) -> None:
+        if token != self.expected_token:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid or missing token",
+            )
 
 class SlackJWTVerifier:
     """

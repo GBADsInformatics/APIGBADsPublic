@@ -2,7 +2,21 @@ import os
 from typing import Callable
 from app.adapters.s3_adapter import S3Adapter
 from app.adapters.rds_adapter import RDSAdapter
+from app.utils.auth import DPMTokenVerifier# auth/dependencies.py
+from fastapi import Depends, Header, HTTPException
 
+def verify_dpm_token(
+    authorization: str = Header(..., alias="Authorization"),
+    verifier: DPMTokenVerifier = Depends(DPMTokenVerifier),
+):
+    try:
+        scheme, token = authorization.strip().split(" ")
+        if scheme.lower() != "bearer":
+            raise ValueError
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid Authorization header")
+
+    verifier.verify(token)
 
 def get_s3_adapter() -> S3Adapter:
     """

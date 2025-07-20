@@ -2,7 +2,7 @@ import io
 from fastapi import APIRouter, HTTPException, UploadFile, File, Depends
 from fastapi.responses import StreamingResponse
 from app.adapters.s3_adapter import S3Adapter
-from app.utils.dependencies import get_s3_adapter
+from app.utils.dependencies import get_s3_adapter, verify_dpm_token
 
 router = APIRouter()
 
@@ -11,7 +11,8 @@ async def upload_file(
     bucket_name: str,
     object_name: str,
     file: UploadFile = File(...),
-    s3_adapter: S3Adapter = Depends(get_s3_adapter)
+    s3_adapter: S3Adapter = Depends(get_s3_adapter),
+    _: None = Depends(verify_dpm_token)
 ):
     """
     Upload a file to S3.\n
@@ -30,7 +31,8 @@ async def upload_file(
 async def download_file(
     bucket_name: str,
     object_name: str,
-    s3_adapter: S3Adapter = Depends(get_s3_adapter)
+    s3_adapter: S3Adapter = Depends(get_s3_adapter),
+    _: None = Depends(verify_dpm_token)
 ):
     """
     Download a file from S3.\n
