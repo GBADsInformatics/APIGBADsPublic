@@ -48,7 +48,7 @@ source env/bin/activate
 ### Install the Python Dependencies :package:
 ```bash
 pip3 install -r requirements/requirements.txt
-pip3 install -r requirements/requirements-test.txt # if running tests/linting
+pip3 install -r requirements/requirements-tests.txt # if running tests/linting
 ```
 
 ### Running the API for Development :running_woman:

@@ -1,5 +1,51 @@
-from fastapi import HTTPException
 import jwt
+from fastapi import HTTPException, status, Security
+from fastapi.security.api_key import APIKeyHeader
+
+api_key_header = APIKeyHeader(name="Authorization", auto_error=True)
+
+class DPMTokenVerifier:
+    """
+    Dependency class for verifying Bearer tokens in API requests.
+
+    This class is used as a FastAPI dependency to ensure that incoming requests
+    contain a valid Authorization header with a Bearer token matching the expected token.
+
+    Attributes:
+        expected_token (str): The token expected to be included in the request header.
+
+    Methods:
+        verify(api_key: str): Checks if the provided token is valid.
+        __call__(api_key: str): Enables the class instance to be used directly as a FastAPI dependency.
+    """
+
+    def __init__(self, expected_token: str):
+        self.expected_token = expected_token
+
+    async def verify(self, api_key: str) -> None:
+        """
+        Verifies the Authorization header token.
+
+        Args:
+            api_key (str): The Authorization header string (e.g., "Bearer <token>").
+
+        Raises:
+            HTTPException: If the header is missing, incorrectly formatted, or contains an invalid token.
+        """
+        scheme, _, token = api_key.partition(" ")
+        if scheme.lower() != "bearer" or not token:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Authorization header must be in 'Bearer <token>' format",
+            )
+        if token != self.expected_token:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid or missing token",
+            )
+
+    async def __call__(self, api_key: str = Security(api_key_header)) -> None:
+        await self.verify(api_key)
 
 
 class SlackJWTVerifier:

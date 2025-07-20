@@ -2,7 +2,25 @@ import os
 from typing import Callable
 from app.adapters.s3_adapter import S3Adapter
 from app.adapters.rds_adapter import RDSAdapter
+from app.utils.auth import DPMTokenVerifier# auth/dependencies.py
 
+def get_dpm_token_verifier() -> DPMTokenVerifier:
+    """
+    Dependency provider for DPMTokenVerifier.
+
+    Loads the expected token from the environment variable `DPM_AUTH_TOKEN`
+    and returns a DPMTokenVerifier instance configured with it.
+
+    Returns:
+        DPMTokenVerifier: An instance of the token verifier.
+
+    Raises:
+        RuntimeError: If the `DPM_AUTH_TOKEN` environment variable is not set.
+    """
+    expected_token = os.getenv("DPM_AUTH_TOKEN")
+    if not expected_token:
+        raise RuntimeError("DPM_AUTH_TOKEN environment variable not set")
+    return DPMTokenVerifier(expected_token)
 
 def get_s3_adapter() -> S3Adapter:
     """
