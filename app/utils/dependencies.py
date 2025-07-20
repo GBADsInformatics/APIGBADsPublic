@@ -3,7 +3,6 @@ from typing import Callable
 from app.adapters.s3_adapter import S3Adapter
 from app.adapters.rds_adapter import RDSAdapter
 from app.utils.auth import DPMTokenVerifier# auth/dependencies.py
-from fastapi import Depends, Header, HTTPException
 
 def get_dpm_token_verifier() -> DPMTokenVerifier:
     """
