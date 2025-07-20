@@ -1,4 +1,11 @@
 **/__pycache__
 **/.vscode
+**/.DS_Store
+logs/*
+env/
+venv/
 info.conf
 key.conf
+tests/
+pyproject.toml
+requirements/requirements-test.txt

@@ -3,7 +3,9 @@ on:
     branches: [ "main" , "master" ]
 
   workflow_dispatch:
-  
+
+name: Build & Deploy
+
 jobs:
   commit-hash:
     name: Commit SHA
@@ -30,9 +32,13 @@ jobs:
         DockerURI=gbadsinformatics/api:${{ needs.commit-hash.outputs.sha7 }},
         BaseURL=/api,
         ListenerRulePriority=2,
-        MajorInfo1=${{ secrets.MAJOR_INFO1 }},
-        MajorInfo2=${{ secrets.MAJOR_INFO2 }},
-        MajorKey=${{ secrets.MAJOR_KEY }}
+        RdsPublicHost=${{ secrets.RDS_PUBLIC_HOST }},
+        RdsPublicName=${{ secrets.RDS_PUBLIC_NAME }},
+        RdsPublicUser=${{ secrets.RDS_PUBLIC_USER }},
+        RdsPublicPass=${{ secrets.RDS_PUBLIC_PASS }},
+        S3_USER_KEY=${{ secrets.S3_USER_KEY }},
+        S3_USER_SECRET=${{ secrets.S3_USER_SECRET }},
+        S3_USER_REGION=${{ secrets.S3_USER_REGION }}
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
     with:
