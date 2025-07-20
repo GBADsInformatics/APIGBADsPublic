@@ -6,6 +6,18 @@ from app.utils.auth import DPMTokenVerifier# auth/dependencies.py
 from fastapi import Depends, Header, HTTPException
 
 def get_dpm_token_verifier() -> DPMTokenVerifier:
+    """
+    Dependency provider for DPMTokenVerifier.
+
+    Loads the expected token from the environment variable `DPM_AUTH_TOKEN`
+    and returns a DPMTokenVerifier instance configured with it.
+
+    Returns:
+        DPMTokenVerifier: An instance of the token verifier.
+
+    Raises:
+        RuntimeError: If the `DPM_AUTH_TOKEN` environment variable is not set.
+    """
     expected_token = os.getenv("DPM_AUTH_TOKEN")
     if not expected_token:
         raise RuntimeError("DPM_AUTH_TOKEN environment variable not set")
