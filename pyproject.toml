@@ -11,6 +11,7 @@ disable = [
     "C0103",  # invalid-name
     "W0613",  # unused-argument
     "E1101",  # no-member
+    "R0903",  # too-few-public-methods
 ]
 [tool.pytest.ini_options]
 addopts = "-v"

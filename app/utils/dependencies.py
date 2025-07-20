@@ -1,20 +1,33 @@
 import os
 from typing import Callable
+from fastapi import Depends, Header, HTTPException
 from app.adapters.s3_adapter import S3Adapter
 from app.adapters.rds_adapter import RDSAdapter
-from app.utils.auth import DPMTokenVerifier# auth/dependencies.py
-from fastapi import Depends, Header, HTTPException
+from app.utils.auth import DPMTokenVerifier
 
 def verify_dpm_token(
     authorization: str = Header(..., alias="Authorization"),
     verifier: DPMTokenVerifier = Depends(DPMTokenVerifier),
 ):
+    """
+    Dependency that verifies the Bearer token from the Authorization header.
+
+    Args:
+        authorization (str): The value of the 'Authorization' HTTP header, 
+                             expected in the format "Bearer <token>".
+        verifier (DPMTokenVerifier): An instance of the token verifier class.
+
+    Raises:
+        HTTPException: 
+            - 400 Bad Request if the Authorization header format is invalid.
+            - 401 Unauthorized if the token verification fails.
+    """
     try:
         scheme, token = authorization.strip().split(" ")
         if scheme.lower() != "bearer":
-            raise ValueError
-    except ValueError:
-        raise HTTPException(status_code=400, detail="Invalid Authorization header")
+            raise ValueError("Authorization scheme is not Bearer")
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail="Invalid Authorization header") from exc
 
     verifier.verify(token)
 

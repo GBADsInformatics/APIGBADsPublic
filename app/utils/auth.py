@@ -1,5 +1,5 @@
-import jwt
 import os
+import jwt
 from fastapi import HTTPException, status
 
 class DPMTokenVerifier:
@@ -12,6 +12,16 @@ class DPMTokenVerifier:
             raise RuntimeError("DPM_AUTH_TOKEN not set in environment")
 
     def verify(self, token: str) -> None:
+        """
+        Verifies the provided token against the expected DPM authorization token.
+
+        Args:
+            token (str): The token provided in the Authorization header.
+
+        Raises:
+            HTTPException: If the token does not match the expected value, 
+                        an HTTP 401 Unauthorized error is raised.
+        """
         if token != self.expected_token:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
