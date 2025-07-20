@@ -9,12 +9,7 @@ class DPMTokenVerifier:
     def __init__(self, expected_token: str):
         self.expected_token = expected_token
 
-    async def __call__(self, api_key: str = Security(api_key_header)) -> None:
-        """
-        Verifies the bearer token from Authorization header.
-
-        Raises HTTPException 401 if token is missing or invalid.
-        """
+    async def verify(self, api_key: str) -> None:
         scheme, _, token = api_key.partition(" ")
         if scheme.lower() != "bearer" or not token:
             raise HTTPException(
@@ -26,6 +21,10 @@ class DPMTokenVerifier:
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Invalid or missing token",
             )
+
+    async def __call__(self, api_key: str = Security(api_key_header)) -> None:
+        # When used as dependency, FastAPI injects api_key automatically
+        await self.verify(api_key)
 
 class SlackJWTVerifier:
     """
