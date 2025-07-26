@@ -91,3 +91,36 @@ class S3Adapter:
         self.client.copy(copy_source, bucket, destination_object_name)
         self.client.delete_object(Bucket=bucket, Key=source_object_name)
         logging.info("File %s moved to %s in %s", source_object_name, destination_object_name, bucket)
+
+    def list_files(self, bucket_name: str, prefix: str = "") -> list[str]:
+        """
+        List all files in a specified folder (prefix) within an S3 bucket.
+
+        Args:
+            bucket_name (str): The name of the S3 bucket to list files from.
+            prefix (str, optional): The folder path inside the bucket to list files from.
+                Defaults to an empty string, which lists files in the root of the bucket.
+                If given as "/" or "", it treats it as the root folder.
+                Automatically appends a trailing slash if missing.
+
+        Returns:
+            list[str]: A list of file keys (paths) found in the specified bucket folder.
+                Does not include directories (keys ending with "/").
+        """
+        if prefix in ["", "/"]:
+            prefix = ""
+        elif not prefix.endswith("/"):
+            prefix += "/"
+
+        paginator = self.client.get_paginator("list_objects_v2")
+        pages = paginator.paginate(Bucket=bucket_name, Prefix=prefix)
+
+        file_list = []
+        for page in pages:
+            for obj in page.get("Contents", []):
+                key = obj["Key"]
+                # Skip directories (optional: only list files directly in the folder)
+                if not key.endswith("/") and key != prefix:
+                    file_list.append(key)
+
+        return file_list

@@ -1,4 +1,5 @@
 import io
+from typing import List
 from fastapi import APIRouter, HTTPException, UploadFile, File, Depends, Security
 from fastapi.responses import StreamingResponse
 from app.adapters.s3_adapter import S3Adapter
@@ -72,5 +73,32 @@ async def download_file(
             media_type="application/octet-stream",
             headers={"Content-Disposition": f"attachment; filename={object_name}"}
         )
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=str(exc)) from exc
+
+@router.get("/list-files", response_model=List[str])
+async def list_files(
+    bucket_name: str,
+    prefix: str = "",  # Optional folder path
+    s3_adapter: S3Adapter = Depends(get_s3_adapter),
+    token_verifier: DPMTokenVerifier = Depends(get_dpm_token_verifier),
+    api_key: str = Security(api_key_header),
+):
+    """
+    List all filenames in a specified S3 bucket folder.
+
+    Args:
+        bucket_name (str): The name of the S3 bucket.
+        folder (str, optional): The folder path inside the bucket. Defaults to root ("").
+        token_verifier (DPMTokenVerifier): The token verifier instance (dependency injected).
+
+    Returns:
+        List[str]: A list of filenames in the specified folder.
+    """
+    await token_verifier.verify(api_key)
+
+    try:
+        files = s3_adapter.list_files(bucket_name=bucket_name, prefix=prefix)
+        return files
     except Exception as exc:
         raise HTTPException(status_code=500, detail=str(exc)) from exc
