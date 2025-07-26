@@ -76,7 +76,7 @@ async def download_file(
     except Exception as exc:
         raise HTTPException(status_code=500, detail=str(exc)) from exc
 
-@router.get("/list-files", response_model=List[str])
+@router.get("/list", response_model=List[str])
 async def list_files(
     bucket_name: str,
     prefix: str = "",  # Optional folder path
