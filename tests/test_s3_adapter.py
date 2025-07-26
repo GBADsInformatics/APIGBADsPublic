@@ -69,3 +69,39 @@ def test_when_init_success_then_client_created(mock_boto):
 def test_when_init_failure_then_raises_exception(mock_boto):
     with pytest.raises(Exception):
         S3Adapter("ak", "sk", "region")
+
+def test_list_files_root_empty_prefix(s3_adapter):
+    mock_paginator = MagicMock()
+    s3_adapter.client.get_paginator.return_value = mock_paginator
+    mock_paginator.paginate.return_value = [
+        {"Contents": [{"Key": "file1.txt"}, {"Key": "folder1/"}, {"Key": "file2.txt"}]}
+    ]
+
+    result = s3_adapter.list_files("bucket", "")
+    assert result == ["file1.txt", "file2.txt"]
+    mock_paginator.paginate.assert_called_with(Bucket="bucket", Prefix="")
+
+
+def test_list_files_root_slash_prefix(s3_adapter):
+    mock_paginator = MagicMock()
+    s3_adapter.client.get_paginator.return_value = mock_paginator
+    mock_paginator.paginate.return_value = [
+        {"Contents": [{"Key": "fileA.txt"}, {"Key": "folderA/"}, {"Key": "fileB.txt"}]}
+    ]
+
+    result = s3_adapter.list_files("bucket", "/")
+    assert result == ["fileA.txt", "fileB.txt"]
+    mock_paginator.paginate.assert_called_with(Bucket="bucket", Prefix="")
+
+
+def test_list_files_with_folder_prefix(s3_adapter):
+    mock_paginator = MagicMock()
+    s3_adapter.client.get_paginator.return_value = mock_paginator
+    mock_paginator.paginate.return_value = [
+        {"Contents": [{"Key": "folder1/file3.txt"}, {"Key": "folder1/subfolder/"}, {"Key": "folder1/file4.txt"}]}
+    ]
+
+    result = s3_adapter.list_files("bucket", "folder1")
+    assert result == ["folder1/file3.txt", "folder1/file4.txt"]
+    mock_paginator.paginate.assert_called_with(Bucket="bucket", Prefix="folder1/")
+

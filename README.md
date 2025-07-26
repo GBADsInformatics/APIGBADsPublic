@@ -45,6 +45,12 @@ To activate:
 source env/bin/activate
 ```
 
+or
+
+```bash
+env\Scripts\activate
+```
+
 ### Install the Python Dependencies :package:
 ```bash
 pip3 install -r requirements/requirements.txt
@@ -82,9 +88,21 @@ http://localhost:8000/docs
 pylint app/
 ```
 
+or
+
+```bash
+python -m pylint app/
+```
+
 ### Running Unit Tests Locally :triangular_flag_on_post:
 ```bash
 pytest .
+```
+
+or
+
+```bash
+python -m pytest .
 ```
 
 ### Running the API in Docker :sailboat:
