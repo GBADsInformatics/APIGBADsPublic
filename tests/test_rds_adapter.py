@@ -62,13 +62,10 @@ def test_when_execute_undefined_column_then_raises_value_error(rds_adapter):
 
 
 def test_when_insert_called_then_returns_lastrowid(rds_adapter):
-    rds_adapter.execute = MagicMock()
-    mock_cursor = MagicMock()
-    mock_cursor.lastrowid = 42
-    rds_adapter.connection.cursor.return_value = mock_cursor
+    rds_adapter.execute = MagicMock(return_value=([[42]], []))
     result = rds_adapter.insert("table", (1, 2))
     rds_adapter.execute.assert_called_once()
-    assert result == 42
+    assert result == [[42]]
 
 
 def test_when_list_tables_called_then_returns_table_list(rds_adapter):

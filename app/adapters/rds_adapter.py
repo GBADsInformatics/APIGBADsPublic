@@ -73,21 +73,26 @@ class RDSAdapter:
                 self.connection.rollback()
                 raise ValueError(f"Syntax error in query: {exc}") from exc
             self.connection.commit()
-            data = cursor.fetchall()
-            column_names = [desc[0] for desc in cursor.description]
+            # Only fetch results if there is a result set
+            if cursor.description is not None:
+                data = cursor.fetchall()
+                column_names = [desc[0] for desc in cursor.description]
+            else:
+                data = []
+                column_names = []
             return data, column_names
 
-    def insert(self, table: str, values: tuple) -> int:
+    def insert(self, table: str, values: tuple) -> list:
         """
         Insert a row into the specified table.
         :param table: Name of the table to insert into
         :param values: Tuple of values to insert
         """
         placeholders = ', '.join(['%s'] * len(values))
-        query = f"INSERT INTO {table} VALUES ({placeholders})"
-        self.execute(query, values)
+        query = f"INSERT INTO {table} VALUES ({placeholders}) RETURNING *"
+        data, _ = self.execute(query, values)
         logger.info("Inserted values %s into table %s", values, table)
-        return self.connection.cursor().lastrowid
+        return data
 
     def list_tables(self) -> list:
         """
@@ -118,6 +123,7 @@ class RDSAdapter:
         join: str = "",
         order_by: str = "",
         count: bool = False,
+        where_params: tuple = ()
     ) -> Tuple[list, list, str]:
         """
         Query the specified table with optional filtering, joining, and ordering.
@@ -151,7 +157,7 @@ class RDSAdapter:
         if order_by:
             query += f" ORDER BY {order_by}"
 
-        data, column_names = self.execute(query)
+        data, column_names = self.execute(query, where_params)
         return data, column_names, query
 
     def build_from_join_clause(self, table1: str, table2: str, field1: str, field2: str) -> str:
