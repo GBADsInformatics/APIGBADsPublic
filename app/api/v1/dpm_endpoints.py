@@ -108,6 +108,34 @@ async def list_files(
         raise HTTPException(status_code=500, detail=str(exc)) from exc
 
 
+@router.delete("/delete")
+async def delete_file(
+    bucket_name: str,
+    object_name: str,
+    s3_adapter: S3Adapter = Depends(get_s3_adapter),
+    token_verifier: DPMTokenVerifier = Depends(get_dpm_token_verifier),
+    api_key: str = Security(api_key_header),
+):
+    """
+    Delete a file from S3.
+
+    Args:
+        bucket_name (str): The name of the S3 bucket.
+        object_name (str): The name of the object in S3.
+        token_verifier (DPMTokenVerifier): The token verifier instance (dependency injected).
+
+    Returns:
+        dict: Success message or raises HTTPException on failure.
+    """
+    await token_verifier.verify(api_key)
+
+    try:
+        s3_adapter.delete(bucket_name, object_name)
+        return {"message": "File deleted successfully"}
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=str(exc)) from exc
+
+
 @router.get("/user/{id}")
 async def get_user_data(
     id: int,
