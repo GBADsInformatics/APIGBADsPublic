@@ -114,3 +114,32 @@ def test_when_select_count_then_query_contains_count(rds_adapter):
 def test_when_build_from_join_clause_then_returns_join_string(rds_adapter):
     clause = rds_adapter.build_from_join_clause("t1", "t2", "f1", "f2")
     assert clause == "FROM t1 INNER JOIN t2 ON t1.f1 = t2.f2"
+
+def test_when_delete_success_then_returns_rowcount(rds_adapter):
+    mock_cursor = MagicMock()
+    mock_cursor.__enter__.return_value = mock_cursor
+    mock_cursor.rowcount = 1
+    rds_adapter.connection.cursor.return_value = mock_cursor
+    rds_adapter.connection.commit = MagicMock()
+    deleted = rds_adapter.delete("users", "user_id = %s", (123,))
+    assert deleted == 1
+    rds_adapter.connection.commit.assert_called_once()
+    mock_cursor.execute.assert_called_once_with("DELETE FROM users WHERE user_id = %s", (123,))
+
+def test_when_delete_no_rows_then_returns_zero(rds_adapter):
+    mock_cursor = MagicMock()
+    mock_cursor.__enter__.return_value = mock_cursor
+    mock_cursor.rowcount = 0
+    rds_adapter.connection.cursor.return_value = mock_cursor
+    rds_adapter.connection.commit = MagicMock()
+    deleted = rds_adapter.delete("users", "user_id = %s", (999,))
+    assert deleted == 0
+
+def test_when_delete_bad_query_then_raises_exception(rds_adapter):
+    mock_cursor = MagicMock()
+    mock_cursor.__enter__.return_value = mock_cursor
+    mock_cursor.execute.side_effect = Exception("Syntax error")
+    rds_adapter.connection.cursor.return_value = mock_cursor
+    rds_adapter.connection.commit = MagicMock()
+    with pytest.raises(Exception):
+        rds_adapter.delete("users", "bad syntax", ())

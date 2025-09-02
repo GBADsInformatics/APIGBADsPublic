@@ -1,4 +1,4 @@
-from app.utils.auth import SlackJWTVerifier
+from app.utils.auth import SlackJWTVerifier, DPMTokenVerifier
 from unittest.mock import patch, mock_open
 import pytest
 from fastapi import HTTPException
@@ -66,3 +66,35 @@ def test_when_verifier_called_then_delegates_to_staticmethod():
         result = verifier("token")
         mock_verify.assert_called_once_with("token", key_filename="file", desired_app="app", desired_task="task")
         assert result == {"app": "app", "task": "task"}
+
+
+def test_when_valid_bearer_token_then_no_exception():
+    verifier = DPMTokenVerifier(expected_token="goodtoken")
+    api_key = "Bearer goodtoken"
+    # Should not raise
+    verifier(api_key)
+
+
+def test_when_invalid_bearer_token_then_raises_http_401():
+    verifier = DPMTokenVerifier(expected_token="goodtoken")
+    api_key = "Bearer badtoken"
+    with pytest.raises(HTTPException) as excinfo:
+        verifier(api_key)
+    assert excinfo.value.status_code == 401
+    assert "Invalid or missing token" in str(excinfo.value.detail)
+
+
+def test_when_missing_bearer_scheme_then_raises_http_401():
+    verifier = DPMTokenVerifier(expected_token="goodtoken")
+    api_key = "badtoken"
+    with pytest.raises(HTTPException) as excinfo:
+        verifier(api_key)
+    assert excinfo.value.status_code == 401
+    assert "Authorization header must be in 'Bearer <token>' format" in str(excinfo.value.detail)
+
+
+def test_when_env_var_missing_then_raises_runtime_error(monkeypatch):
+    monkeypatch.delenv("DPM_AUTH_TOKEN", raising=False)
+    with pytest.raises(RuntimeError) as excinfo:
+        DPMTokenVerifier()
+    assert "DPM_AUTH_TOKEN environment variable not set" in str(excinfo.value)

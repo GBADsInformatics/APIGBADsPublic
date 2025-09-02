@@ -5,6 +5,8 @@ on: [push]
 jobs:
   code_quality:
     runs-on: ubuntu-latest
+    env:
+      DPM_AUTH_TOKEN: testtoken
     steps:
       - uses: actions/checkout@v3
       - name: Set up Python 3.11
@@ -22,6 +24,8 @@ jobs:
 
   unit_tests:
     runs-on: ubuntu-latest
+    env:
+      DPM_AUTH_TOKEN: testtoken
     steps:
       - uses: actions/checkout@v3
       - name: Set up Python 3.11

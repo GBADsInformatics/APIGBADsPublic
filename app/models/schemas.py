@@ -13,6 +13,18 @@ class UserCreate(BaseModel):
     user_language: str
     user_role: Optional[str] = None
 
+    def __init__(self, **data):
+        super().__init__(**data)
+        self.user_firstname = self.user_firstname.strip()
+        if self.user_lastname:
+            self.user_lastname = self.user_lastname.strip()
+        self.user_email = self.user_email.strip()
+        self.user_country = self.user_country.strip()
+        if self.user_language:
+            self.user_language = self.user_language.strip()
+        if self.user_role:
+            self.user_role = self.user_role.strip()
+
 
 class User(BaseModel):
     """

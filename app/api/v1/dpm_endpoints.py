@@ -1,13 +1,13 @@
 import io
 import os
 from typing import List
-from fastapi import APIRouter, HTTPException, UploadFile, File, Depends, Security
+from fastapi import APIRouter, HTTPException, UploadFile, File, Depends
 from fastapi.responses import StreamingResponse
 from app.models.schemas import User, UserCreate
 from app.adapters.rds_adapter import RDSAdapter
 from app.adapters.s3_adapter import S3Adapter
-from app.utils.dependencies import get_rds_adapter, get_s3_adapter, get_dpm_token_verifier
-from app.utils.auth import DPMTokenVerifier, api_key_header  # import api_key_header
+from app.utils.dependencies import get_rds_adapter, get_s3_adapter
+from app.utils.auth import DPMTokenVerifier
 
 router = APIRouter()
 
@@ -16,9 +16,8 @@ async def upload_file(
     bucket_name: str,
     object_name: str,
     file: UploadFile = File(...),
-    s3_adapter: S3Adapter = Depends(get_s3_adapter),
-    token_verifier: DPMTokenVerifier = Depends(get_dpm_token_verifier),
-    api_key: str = Security(api_key_header),  # get raw token string here
+    _: None = Depends(DPMTokenVerifier()),
+    s3_adapter: S3Adapter = Depends(get_s3_adapter)
 ):
     """
     Upload a file to S3.
@@ -32,9 +31,6 @@ async def upload_file(
     Returns:
         dict: Success message or raises HTTPException on failure.
     """
-    # Explicitly verify token
-    await token_verifier.verify(api_key)
-
     try:
         s3_adapter.upload(bucket_name, object_name, fileobj=file.file)
         return {"message": "File uploaded successfully"}
@@ -46,9 +42,8 @@ async def upload_file(
 async def download_file(
     bucket_name: str,
     object_name: str,
-    s3_adapter: S3Adapter = Depends(get_s3_adapter),
-    token_verifier: DPMTokenVerifier = Depends(get_dpm_token_verifier),
-    api_key: str = Security(api_key_header),  # get raw token string here too
+    _: None = Depends(DPMTokenVerifier()),
+    s3_adapter: S3Adapter = Depends(get_s3_adapter)
 ):
     """
     Download a file from S3.
@@ -64,9 +59,6 @@ async def download_file(
     Raises:
         HTTPException: For file not found or internal server errors.
     """
-    # Explicitly verify token
-    await token_verifier.verify(api_key)
-
     try:
         file_content = s3_adapter.download(bucket_name, object_name)
         if not file_content:
@@ -84,9 +76,8 @@ async def download_file(
 async def list_files(
     bucket_name: str,
     prefix: str = "",  # Optional folder path
-    s3_adapter: S3Adapter = Depends(get_s3_adapter),
-    token_verifier: DPMTokenVerifier = Depends(get_dpm_token_verifier),
-    api_key: str = Security(api_key_header),
+    _: None = Depends(DPMTokenVerifier()),
+    s3_adapter: S3Adapter = Depends(get_s3_adapter)
 ):
     """
     List all filenames in a specified S3 bucket folder.
@@ -99,8 +90,6 @@ async def list_files(
     Returns:
         List[str]: A list of filenames in the specified folder.
     """
-    await token_verifier.verify(api_key)
-
     try:
         files = s3_adapter.list_files(bucket_name=bucket_name, prefix=prefix)
         return files
@@ -112,9 +101,8 @@ async def list_files(
 async def delete_file(
     bucket_name: str,
     object_name: str,
-    s3_adapter: S3Adapter = Depends(get_s3_adapter),
-    token_verifier: DPMTokenVerifier = Depends(get_dpm_token_verifier),
-    api_key: str = Security(api_key_header),
+    _: None = Depends(DPMTokenVerifier()),
+    s3_adapter: S3Adapter = Depends(get_s3_adapter)
 ):
     """
     Delete a file from S3.
@@ -127,8 +115,6 @@ async def delete_file(
     Returns:
         dict: Success message or raises HTTPException on failure.
     """
-    await token_verifier.verify(api_key)
-
     try:
         s3_adapter.delete(bucket_name, object_name)
         return {"message": "File deleted successfully"}
@@ -136,24 +122,52 @@ async def delete_file(
         raise HTTPException(status_code=500, detail=str(exc)) from exc
 
 
+@router.get("/users", response_model=List[User])
+async def list_users(
+    _: None = Depends(DPMTokenVerifier()),
+    rds_adapter: RDSAdapter = Depends(get_rds_adapter(
+        db_host=os.getenv("RDS_DPM_HOST"),
+        db_name=os.getenv("RDS_DPM_NAME"),
+        db_user=os.getenv("RDS_DPM_USER"),
+        db_password=os.getenv("RDS_DPM_PASS")
+    ))
+):
+    """
+    List all users in the database.
+    :return: A list of User objects.
+    """
+    users, _, _ = rds_adapter.select(table_name='users')
+    user_list = [
+        User(
+            user_id=row[0],
+            user_firstname=row[1],
+            user_lastname=row[2],
+            user_email=row[3],
+            user_country=row[4],
+            user_language=row[5],
+            user_role=row[6]
+        )
+        for row in users
+    ]
+    return user_list
+
+
 @router.get("/user/{id}")
 async def get_user_data(
     id: int,
+    _: None = Depends(DPMTokenVerifier()),
     rds_adapter: RDSAdapter = Depends(get_rds_adapter(
         db_host=os.getenv("RDS_DPM_HOST"),
         db_name=os.getenv("RDS_DPM_NAME"),
         db_user=os.getenv("RDS_DPM_USER"),
         db_password= os.getenv("RDS_DPM_PASS")
-    )),
-    token_verifier: DPMTokenVerifier = Depends(get_dpm_token_verifier),
-    api_key: str = Security(api_key_header),
+    ))
 ):
     """
     Get user data from the database.
     :param id: The ID of the user to retrieve.
     :return: A dictionary containing user data.
     """
-    await token_verifier.verify(api_key)
     assert isinstance(id, int), "ID must be an integer"
 
     users, column_names, _ = rds_adapter.select(table_name='users', where="user_id = %s", where_params=(id,))
@@ -165,24 +179,30 @@ async def get_user_data(
     return user_obj
 
 
-@router.post("/user")
+@router.post("/user", response_model=User)
 async def create_user(
     user: UserCreate,
+    _: None = Depends(DPMTokenVerifier()),
     rds_adapter: RDSAdapter = Depends(get_rds_adapter(
         db_host=os.getenv("RDS_DPM_HOST"),
         db_name=os.getenv("RDS_DPM_NAME"),
         db_user=os.getenv("RDS_DPM_USER"),
         db_password=os.getenv("RDS_DPM_PASS")
-    )),
-    token_verifier: DPMTokenVerifier = Depends(get_dpm_token_verifier),
-    api_key: str = Security(api_key_header),
+    ))
 ):
     """
     Create a new user in the database.
     :param user: The user data to create.
     :return: A dictionary containing the created user data.
     """
-    await token_verifier.verify(api_key)
+    existing_users, _, _ = rds_adapter.select(
+        table_name='users',
+        where="LOWER(user_email) = LOWER(%s)",
+        where_params=(user.user_email,)
+    )
+    if existing_users:
+        raise HTTPException(status_code=400, detail="A user with this email address already exists.")
+
     new_users = rds_adapter.insert(
         table='public.users (user_firstname, user_lastname, user_email, user_country, user_language, user_role)',
         values=(
@@ -212,20 +232,27 @@ async def create_user(
 @router.delete("/user/{id}")
 async def delete_user(
     id: int,
+    _: None = Depends(DPMTokenVerifier()),
     rds_adapter: RDSAdapter = Depends(get_rds_adapter(
         db_host=os.getenv("RDS_DPM_HOST"),
         db_name=os.getenv("RDS_DPM_NAME"),
         db_user=os.getenv("RDS_DPM_USER"),
         db_password=os.getenv("RDS_DPM_PASS")
-    )),
-    token_verifier: DPMTokenVerifier = Depends(get_dpm_token_verifier),
-    api_key: str = Security(api_key_header),
+    ))
 ):
     """
     Delete user from the database.
     :return: A success message.
     """
-    await token_verifier.verify(api_key)
     assert isinstance(id, int), "ID must be an integer"
-    rds_adapter.execute("DELETE FROM public.users WHERE user_id = %s", (id,))
+    existing_users, _, _ = rds_adapter.select(
+        table_name='users',
+        where="user_id = %s",
+        where_params=(id,)
+    )
+    if not existing_users:
+        raise HTTPException(status_code=404, detail=f"No user exists with ID {id}")
+    deleted_count = rds_adapter.delete("public.users", "user_id = %s", (id,))
+    if deleted_count == 0:
+        raise HTTPException(status_code=500, detail="Failed to delete user")
     return {"message": "User deleted successfully"}
