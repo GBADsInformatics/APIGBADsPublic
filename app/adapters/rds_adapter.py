@@ -170,3 +170,19 @@ class RDSAdapter:
         :return: JOIN clause string
         """
         return f"FROM {table1} INNER JOIN {table2} ON {table1}.{field1} = {table2}.{field2}"
+
+    def delete(self, table: str, where: str, params: tuple = ()) -> int:
+        """
+        Delete rows from the specified table with a WHERE clause.
+        :param table: Name of the table to delete from
+        :param where: WHERE clause (e.g., "user_id = %s")
+        :param params: Tuple of parameters for the WHERE clause
+        :return: Number of rows deleted
+        """
+        query = f"DELETE FROM {table} WHERE {where}"
+        with self.connection.cursor() as cursor:
+            cursor.execute(query, params)
+            self.connection.commit()
+            deleted_count = cursor.rowcount
+        logger.info("Deleted %d rows from table %s where %s", deleted_count, table, where)
+        return deleted_count

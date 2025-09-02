@@ -245,5 +245,14 @@ async def delete_user(
     :return: A success message.
     """
     assert isinstance(id, int), "ID must be an integer"
-    rds_adapter.execute("DELETE FROM public.users WHERE user_id = %s", (id,))
+    existing_users, _, _ = rds_adapter.select(
+        table_name='users',
+        where="user_id = %s",
+        where_params=(id,)
+    )
+    if not existing_users:
+        raise HTTPException(status_code=404, detail=f"No user exists with ID {id}")
+    deleted_count = rds_adapter.delete("public.users", "user_id = %s", (id,))
+    if deleted_count == 0:
+        raise HTTPException(status_code=500, detail="Failed to delete user")
     return {"message": "User deleted successfully"}
