@@ -24,8 +24,11 @@ BASE_URL = os.environ.get("BASE_URL", "")
 
 
 class SuppressRootLoggingMiddleware:
-    def __init__(self, app, root_path):
-        self.app = app
+    """
+    Middleware to suppress logging for requests to the root endpoint.
+    """
+    def __init__(self, inner_app, root_path):
+        self.app = inner_app
         self.root_path = root_path.rstrip('/') + '/'
 
     async def __call__(self, scope, receive, send):
