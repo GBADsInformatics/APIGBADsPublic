@@ -1,9 +1,9 @@
 import io
 import os
 from typing import List
-from fastapi import APIRouter, HTTPException, UploadFile, File, Depends
+from fastapi import APIRouter, HTTPException, Query, UploadFile, File, Depends
 from fastapi.responses import StreamingResponse
-from app.models.schemas import User, UserCreate
+from app.models.schemas import User, UserCreate, UserModel
 from app.adapters.rds_adapter import RDSAdapter
 from app.adapters.s3_adapter import S3Adapter
 from app.utils.dependencies import get_rds_adapter, get_s3_adapter
@@ -256,3 +256,47 @@ async def delete_user(
     if deleted_count == 0:
         raise HTTPException(status_code=500, detail="Failed to delete user")
     return {"message": "User deleted successfully"}
+
+
+@router.get("/models", response_model=List[UserModel])
+async def list_user_models(
+    user_id: int = Query(..., description="The ID of the user to list models for"),
+    _: None = Depends(DPMTokenVerifier()),
+    rds_adapter: RDSAdapter = Depends(get_rds_adapter(
+        db_host=os.getenv("RDS_DPM_HOST"),
+        db_name=os.getenv("RDS_DPM_NAME"),
+        db_user=os.getenv("RDS_DPM_USER"),
+        db_password=os.getenv("RDS_DPM_PASS")
+    ))
+):
+    """
+    List all user models in the database.
+    :return: A list of UserModel objects.
+    """
+    assert isinstance(user_id, int), "user_id must be an integer"
+    models, _, _ = rds_adapter.select(table_name='user_models', where="user_id = %s", where_params=(user_id,))
+    model_dict = {}
+    for row in models:
+        user_id, name, status, file_input, file_outputs, date_created, date_completed, _, run_time = row
+        if name not in model_dict:
+            model_dict[name] = UserModel(
+                user_id=user_id,
+                name=name,
+                status=status,
+                file_inputs=[file_input],
+                file_outputs=file_outputs.split(',') if file_outputs else [],
+                date_created=str(date_created),
+                date_completed=str(date_completed),
+                run_times=[run_time] if run_time else []
+            )
+        else:
+            # Update existing entry
+            existing_model = model_dict[name]
+            if 'error' not in existing_model.status and 'error' in status:
+                existing_model.status = status
+            existing_model.file_inputs.append(file_input)
+            existing_model.file_outputs.extend(file_outputs.split(',') if file_outputs else [])
+            # Append run time
+            if run_time:
+                existing_model.run_times.append(run_time)
+    return list(model_dict.values())

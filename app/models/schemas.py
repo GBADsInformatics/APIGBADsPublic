@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import List, Optional
 from pydantic import BaseModel
 
 
@@ -37,3 +37,17 @@ class User(BaseModel):
     user_country: str
     user_language: str
     user_role: Optional[str] = None
+
+
+class UserModel(BaseModel):
+    """
+    User model schema for DPM.
+    """
+    user_id: int
+    name: str
+    status: str
+    file_inputs: List[str] = []
+    file_outputs: List[str] = []
+    date_created: str
+    date_completed: Optional[str] = None
+    run_times: List[float] = []
