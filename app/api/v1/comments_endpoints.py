@@ -1,9 +1,10 @@
 import json
 import datetime
+import os
 from typing import Optional
 from fastapi import APIRouter, HTTPException, Depends
 from app.utils.auth import SlackJWTVerifier
-from app.utils.dependencies import get_s3_adapter
+from app.utils.dependencies import get_rds_adapter, get_s3_adapter
 from app.adapters.s3_adapter import S3Adapter
 from app.adapters.rds_adapter import RDSAdapter
 
@@ -14,7 +15,7 @@ router = APIRouter()
 @router.post("/approve/{comment_id}")
 async def approve_comment(
     comment_id: str,
-    decoded_jwt: dict = Depends(
+    _: dict = Depends(
         SlackJWTVerifier(
             key_filename="app/public/keys/slackbot_comments_move_approve_key.pub",
             desired_app="slackbot_comments_move",
@@ -23,6 +24,14 @@ async def approve_comment(
     ),
     reviewer: Optional[str] = None,
     s3_adapter: S3Adapter = Depends(get_s3_adapter),
+    rds_adapter: RDSAdapter = Depends(
+        get_rds_adapter(
+            db_name="public_data",
+            db_host=os.getenv("RDS_HOST"),
+            db_user=os.getenv("RDS_USER"),
+            db_password=os.getenv("RDS_PASS")
+        )
+    )
 ):
     """
     Approve a comment and move it to the approved folder.\n
@@ -55,20 +64,6 @@ async def approve_comment(
         if not reviewer:
             reviewer = "Unknown"
 
-        # Download the database file
-        config_file = json.loads(s3_adapter.download(
-            bucket="gbads-comments",
-            object_name="information/database.json"
-        ).decode('utf-8'))
-
-        # Create RDSAdapter instance
-        rds_adapter = RDSAdapter(
-            host=config_file["DBHOST"],
-            database=config_file["DBNAME"],
-            user=config_file["DBUSER"],
-            password=config_file["DBPASS"]
-        )
-
         # Insert into the database
         rds_adapter.insert(
             table="gbads_comments",
@@ -93,7 +88,7 @@ async def approve_comment(
 @router.post("/deny/{comment_id}")
 async def deny_comment(
     comment_id: str,
-    decoded_jwt: dict = Depends(
+    _: dict = Depends(
         SlackJWTVerifier(
             key_filename="app/public/keys/slackbot_comments_move_deny_key.pub",
             desired_app="slackbot_comments_move",

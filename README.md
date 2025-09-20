@@ -63,7 +63,6 @@ pip3 install -r requirements/requirements-tests.txt # if running tests/linting
 Load these if you'll be running the Knowledge Engine database endpoints
 ```bash
 export RDS_HOST=rds_host_here
-export RDS_NAME=rds_db_name_here
 export RDS_USER=rds_username_here
 export RDS_PASS=rds_password_here
 ```
