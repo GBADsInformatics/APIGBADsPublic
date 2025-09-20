@@ -25,8 +25,8 @@ async def get_dataportal():
 async def list_all_public_tables(
     format: str = "text",
     rds_adapter: RDSAdapter = Depends(get_rds_adapter(
+        db_name="public_data",
         db_host=os.getenv("RDS_HOST"),
-        db_name=os.getenv("RDS_NAME"),
         db_user=os.getenv("RDS_USER"),
         db_password= os.getenv("RDS_PASS")
     ))
@@ -49,8 +49,8 @@ async def list_table_fields(
     table_name: str,
     format: str = "text",
     rds_adapter: RDSAdapter = Depends(get_rds_adapter(
+        db_name="public_data",
         db_host=os.getenv("RDS_HOST"),
-        db_name=os.getenv("RDS_NAME"),
         db_user=os.getenv("RDS_USER"),
         db_password= os.getenv("RDS_PASS")
     ))
@@ -81,8 +81,8 @@ async def public_query(
     count: str = "no",
     pivot: str = "",
     rds_adapter: RDSAdapter = Depends(get_rds_adapter(
+        db_name="public_data",
         db_host=os.getenv("RDS_HOST"),
-        db_name=os.getenv("RDS_NAME"),
         db_user=os.getenv("RDS_USER"),
         db_password= os.getenv("RDS_PASS")
     ))
@@ -148,8 +148,8 @@ async def get_population(
     country: Optional[str] = "*",
     species: Optional[str] = "*",
     rds_adapter: RDSAdapter = Depends(get_rds_adapter(
+        db_name="public_data",
         db_host=os.getenv("RDS_HOST"),
-        db_name=os.getenv("RDS_NAME"),
         db_user=os.getenv("RDS_USER"),
         db_password=os.getenv("RDS_PASS")
     ))

@@ -126,10 +126,10 @@ async def delete_file(
 async def list_users(
     _: None = Depends(DPMTokenVerifier()),
     rds_adapter: RDSAdapter = Depends(get_rds_adapter(
-        db_host=os.getenv("RDS_DPM_HOST"),
-        db_name=os.getenv("RDS_DPM_NAME"),
-        db_user=os.getenv("RDS_DPM_USER"),
-        db_password=os.getenv("RDS_DPM_PASS")
+        db_name="dpm",
+        db_host=os.getenv("RDS_HOST"),
+        db_user=os.getenv("RDS_USER"),
+        db_password=os.getenv("RDS_PASS")
     ))
 ):
     """
@@ -157,10 +157,10 @@ async def get_user_data(
     id: int,
     _: None = Depends(DPMTokenVerifier()),
     rds_adapter: RDSAdapter = Depends(get_rds_adapter(
-        db_host=os.getenv("RDS_DPM_HOST"),
-        db_name=os.getenv("RDS_DPM_NAME"),
-        db_user=os.getenv("RDS_DPM_USER"),
-        db_password= os.getenv("RDS_DPM_PASS")
+        db_name="dpm",
+        db_host=os.getenv("RDS_HOST"),
+        db_user=os.getenv("RDS_USER"),
+        db_password= os.getenv("RDS_PASS")
     ))
 ):
     """
@@ -184,10 +184,10 @@ async def create_user(
     user: UserCreate,
     _: None = Depends(DPMTokenVerifier()),
     rds_adapter: RDSAdapter = Depends(get_rds_adapter(
-        db_host=os.getenv("RDS_DPM_HOST"),
-        db_name=os.getenv("RDS_DPM_NAME"),
-        db_user=os.getenv("RDS_DPM_USER"),
-        db_password=os.getenv("RDS_DPM_PASS")
+        db_name="dpm",
+        db_host=os.getenv("RDS_HOST"),
+        db_user=os.getenv("RDS_USER"),
+        db_password=os.getenv("RDS_PASS")
     ))
 ):
     """
@@ -234,10 +234,10 @@ async def delete_user(
     id: int,
     _: None = Depends(DPMTokenVerifier()),
     rds_adapter: RDSAdapter = Depends(get_rds_adapter(
-        db_host=os.getenv("RDS_DPM_HOST"),
-        db_name=os.getenv("RDS_DPM_NAME"),
-        db_user=os.getenv("RDS_DPM_USER"),
-        db_password=os.getenv("RDS_DPM_PASS")
+        db_name="dpm",
+        db_host=os.getenv("RDS_HOST"),
+        db_user=os.getenv("RDS_USER"),
+        db_password=os.getenv("RDS_PASS")
     ))
 ):
     """
@@ -263,10 +263,10 @@ async def list_user_models(
     user_id: int = Query(..., description="The ID of the user to list models for"),
     _: None = Depends(DPMTokenVerifier()),
     rds_adapter: RDSAdapter = Depends(get_rds_adapter(
-        db_host=os.getenv("RDS_DPM_HOST"),
-        db_name=os.getenv("RDS_DPM_NAME"),
-        db_user=os.getenv("RDS_DPM_USER"),
-        db_password=os.getenv("RDS_DPM_PASS")
+        db_name="dpm",
+        db_host=os.getenv("RDS_HOST"),
+        db_user=os.getenv("RDS_USER"),
+        db_password=os.getenv("RDS_PASS")
     ))
 ):
     """
