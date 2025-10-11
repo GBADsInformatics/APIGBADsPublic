@@ -1,6 +1,6 @@
 import io
 import os
-from typing import List
+from typing import List, Optional
 from fastapi import APIRouter, HTTPException, Query, UploadFile, File, Depends
 from fastapi.responses import StreamingResponse
 from app.models.schemas import User, UserCreate, UserModel
@@ -260,7 +260,7 @@ async def delete_user(
 
 @router.get("/models", response_model=List[UserModel])
 async def list_user_models(
-    user_id: int = Query(..., description="The ID of the user to list models for"),
+    user_id: Optional[int] = Query(None, description="User ID - if not provided, lists models for all users."),
     _: None = Depends(DPMTokenVerifier()),
     rds_adapter: RDSAdapter = Depends(get_rds_adapter(
         db_name="dpm",
@@ -273,14 +273,17 @@ async def list_user_models(
     List all user models in the database.
     :return: A list of UserModel objects.
     """
-    assert isinstance(user_id, int), "user_id must be an integer"
-    models, _, _ = rds_adapter.select(table_name='user_models', where="user_id = %s", where_params=(user_id,))
+    assert user_id is None or isinstance(user_id, int), "user_id must be an integer"
+    if user_id is None:
+        models, _, _ = rds_adapter.select(table_name='user_models')
+    else:
+        models, _, _ = rds_adapter.select(table_name='user_models', where="user_id = %s", where_params=(user_id,))
     model_dict = {}
     for row in models:
-        user_id, name, status, file_input, file_outputs, date_created, date_completed, _, run_time = row
+        uid, name, status, file_input, file_outputs, date_created, date_completed, _, run_time = row
         if name not in model_dict:
             model_dict[name] = UserModel(
-                user_id=user_id,
+                user_id=uid,
                 name=name,
                 status=status,
                 file_inputs=[file_input],
