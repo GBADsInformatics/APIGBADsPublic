@@ -274,6 +274,16 @@ async def list_user_models(
     :return: A list of UserModel objects.
     """
     assert user_id is None or isinstance(user_id, int), "user_id must be an integer"
+
+    def status_priority(status):
+        if status and 'error' in status:
+            return 3
+        if status and 'in_progress' in status:
+            return 2
+        if status and status == 'completed':
+            return 1
+        return 0
+
     if user_id is None:
         models, _, _ = rds_adapter.select(table_name='user_models')
     else:
@@ -295,7 +305,7 @@ async def list_user_models(
         else:
             # Update existing entry
             existing_model = model_dict[name]
-            if 'error' not in existing_model.status and 'error' in status:
+            if status_priority(status) > status_priority(existing_model.status):
                 existing_model.status = status
             existing_model.file_inputs.append(file_input)
             existing_model.file_outputs.extend(file_outputs.split(',') if file_outputs else [])
