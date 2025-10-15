@@ -7,6 +7,7 @@ It includes the following components:
 - `engine_endpoints`: Handles queries to the GBADs public database.
 - `dpm_endpoints`: Manages endpoints related to the Dynamic Population Model.
 - `comments_endpoints`: Facilitates dashboard comments via Slack.
+- `tail_endpoints`: Manages endpoints related to the TAIL dashboard.
 
 Authors:
     William Fitzjohn
@@ -18,7 +19,7 @@ Authors:
 import os
 import logging
 from fastapi import FastAPI
-from app.api.v1 import dpm_endpoints, engine_endpoints, comments_endpoints
+from app.api.v1 import dpm_endpoints, engine_endpoints, comments_endpoints, tail_endpoints
 
 BASE_URL = os.environ.get("BASE_URL", "")
 
@@ -66,6 +67,7 @@ app.add_middleware(SuppressRootLoggingMiddleware, root_path=f"{BASE_URL}")
 app.include_router(engine_endpoints.router, prefix=f"{BASE_URL}", tags=["Knowledge Engine"])
 app.include_router(dpm_endpoints.router, prefix=f"{BASE_URL}/dpm", tags=["Dynamic Population Model"])
 app.include_router(comments_endpoints.router, prefix=f"{BASE_URL}/slack", tags=["Dashboard Comments"])
+app.include_router(tail_endpoints.router, prefix=f"{BASE_URL}/tail", tags=["TAIL Backend"])
 
 @app.get(f"{BASE_URL}/", include_in_schema=False)
 @app.head(f"{BASE_URL}/", include_in_schema=False)

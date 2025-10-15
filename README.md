@@ -28,6 +28,8 @@ This is our API for accessing GBADs public database tables and supporting functi
  │   └── main.py                    # main
  ├── requirements/                  # Python dependencies
  │   └── requirements.txt           #
+ │   └── nationality.csv            # Required for the TAIL endpoint
+ │   └── glove.6B.50d.txt           # Matrix ML file - obtained from curl -L -o glove.6B.zip https://nlp.stanford.edu/data/glove.6B.zip
  ├── tests/                         # Test suite
  ├── Dockerfile                     # Container configuration
  ├── README.md                      # Project documentation
@@ -56,6 +58,16 @@ env\Scripts\activate
 pip3 install -r requirements/requirements.txt
 pip3 install -r requirements/requirements-tests.txt # if running tests/linting
 ```
+
+### Installing required ML matrix for TAIL endpoint
+
+Using the following curl command:
+
+```bash
+curl -L -o glove.6B.zip https://nlp.stanford.edu/data/glove.6B.zip
+```
+
+Unzip the glove.6B.50d.txt file and place it in the requirements folder.
 
 ### Running the API for Development :running_woman:
 > You only need to load the variables depending on the endpoint(s) you'll be working on.
