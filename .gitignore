@@ -12,3 +12,4 @@ key.conf
 easy_export.bat
 requirements/glove.6B.50d.txt
 **/.zip
+tests/test_tail_adapter.py
