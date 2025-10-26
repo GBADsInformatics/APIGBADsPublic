@@ -19,7 +19,7 @@ Authors:
 import os
 import logging
 from fastapi import FastAPI
-from app.api.v1 import dpm_endpoints, engine_endpoints, comments_endpoints, tail_endpoints
+from app.api.v1 import dpm_endpoints, engine_endpoints, comments_endpoints, tail_endpoints, metadata_endpoints
 
 BASE_URL = os.environ.get("BASE_URL", "")
 
@@ -68,6 +68,7 @@ app.include_router(engine_endpoints.router, prefix=f"{BASE_URL}", tags=["Knowled
 app.include_router(dpm_endpoints.router, prefix=f"{BASE_URL}/dpm", tags=["Dynamic Population Model"])
 app.include_router(comments_endpoints.router, prefix=f"{BASE_URL}/slack", tags=["Dashboard Comments"])
 app.include_router(tail_endpoints.router, prefix=f"{BASE_URL}/tail", tags=["TAIL Backend"])
+app.include_router(metadata_endpoints.router, prefix=f"{BASE_URL}/meta-api", tags=["Metadata API"])
 
 @app.get(f"{BASE_URL}/", include_in_schema=False)
 @app.head(f"{BASE_URL}/", include_in_schema=False)

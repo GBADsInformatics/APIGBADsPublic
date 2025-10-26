@@ -13,5 +13,7 @@ disable = [
     "E1101",  # no-member
     "R0903",  # too-few-public-methods
 ]
+ignore = ["env"]  # Ignore the virtual environment folder
+
 [tool.pytest.ini_options]
 addopts = "-v"

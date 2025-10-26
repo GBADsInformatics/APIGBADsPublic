@@ -4,6 +4,7 @@ from typing import Callable
 from app.adapters.s3_adapter import S3Adapter
 from app.adapters.rds_adapter import RDSAdapter
 from app.adapters.tail_adapter import TailAdapterInstance
+from app.adapters.metadata_adapter import MetadataAdapterInstance
 
 # Initialize TailAdapter once when the API starts
 TailAdapterInstance.initialize()
@@ -41,4 +42,10 @@ def get_tail_adapter():
     """
     Injects the initialized TailAdapter into FastAPI endpoints.
     """
-    return TailAdapterInstance  # ✅ Return the singleton instance
+    return TailAdapterInstance
+
+def get_metadata_adapter():
+    """
+    Injects the initialized MetadataAdapter singleton into FastAPI endpoints.
+    """
+    return MetadataAdapterInstance
