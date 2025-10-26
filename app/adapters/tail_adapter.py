@@ -22,18 +22,30 @@ class NER:
         self.nationality_mapping = nationality_mapping
 
     def link_nationality_to_country(self, text):
+        """
+        Links the nationality to a country (Canadian -> Canada)
+        :return: mapping of nationalityh or empty string
+        """
         for token in self.nlp(text):
             if token.text.lower() in self.nationality_mapping:
                 return self.nationality_mapping[token.text.lower()]
         return ""
 
     def remove_stopwords(self, text):
+        """
+        Removes stop words for better parsing
+        :return: list of words that do not include stopwords
+        """
         all_stopwords = stopwords.words("english")
         all_stopwords.extend(["The", "population"])
         tokens = word_tokenize(text)
         return " ".join([w for w in tokens if w not in all_stopwords])
 
     def process_match_scores(self, check_meaning, category_to_check):
+        """
+        Provides a likeliness scoring to how closely a word relates to a category to check against
+        :return: Returns the meaning capitalized or None if the highest key doesnt match the categhory to check
+        """
         try:
             query_embed = self.embeddings_index[check_meaning]
             scores = {}
@@ -54,6 +66,10 @@ class NER:
         return None
 
     def extract_species(self, text):
+        """
+        Extracts the species from the text
+        :return: returns a list of species found in the query
+        """
         species_list = []
         for token in self.nlp(text):
             match = self.process_match_scores(token.text.lower(), "Species")
@@ -62,6 +78,10 @@ class NER:
         return species_list
 
     def extract_country(self, text):
+        """
+        Extracts the countries from the text
+        :return: returns a list of countries found in the query
+        """
         country_list = []
         doc = self.nlp(text)
         for ent in doc.ents:
@@ -83,12 +103,14 @@ class NER:
                     real_countries.append(match)
             else:
                 real_countries.append(country)
-        return real_countries, self.remove_stopwords(newtext)
-
-    def rank_years(self, year):
-        return self.process_match_scores(year.lower(), "Years")
+        self.remove_stopwords(newtext)
+        return real_countries
 
     def is_convertible_to_number(self, s):
+        """
+        Checks if the string can be converted into a number
+        :return: boolean
+        """
         try:
             float(s)
             return True
@@ -96,9 +118,13 @@ class NER:
             return False
 
     def extract_years(self, text):
+        """
+        Extracts the country from the text
+        :return: returns a list of countries found in the query
+        """
         years = []
         for token in self.nlp(text):
-            ranked = self.rank_years(token.text)
+            ranked = self.process_match_scores(token.text.lower(), "Years")
             if ranked or self.is_convertible_to_number(token.text):
                 years.append(token.text)
 
@@ -113,13 +139,21 @@ class NER:
         return washed
 
     def find_curr_year(self, text):
+        """
+        Checks if common keywords for the current year are in the text
+        :return: Returns the current year in number format
+        """
         keywords = ["this year", "latest", "current"]
         if any(k in text.lower() for k in keywords):
             return str(datetime.datetime.now().year)
         return ""
 
     def perform_ner(self, query):
-        countries, newtext = self.extract_country(query)
+        """
+        Starts the near search and combines them into json output
+        :return: Return the species, years, and countries into json/dict
+        """
+        countries = self.extract_country(query)
         species = self.extract_species(query)
         years = self.extract_years(query)
         return {"species": species, "years": years, "countries": countries}
@@ -131,7 +165,6 @@ class TailAdapter:
     def __init__(self):
         self._initialized = False
 
-    
     def initialize(self):
         # Download NLTK data
         nltk.download("stopwords", quiet=True)
@@ -190,8 +223,11 @@ class TailAdapter:
         self._initialized = True
         print("✅ TailAdapter initialized successfully.")
 
-    
     def log_message(self, message: str):
+        """
+        Log messages
+        :return: Nothing
+        """
         toronto_timezone = pytz.timezone("America/Toronto")
         toronto_time = datetime.datetime.now(toronto_timezone)
         formatted_time = toronto_time.strftime("%d-%m-%Y %H:%M")

@@ -4,7 +4,7 @@ from typing import Callable
 from app.adapters.s3_adapter import S3Adapter
 from app.adapters.rds_adapter import RDSAdapter
 from app.adapters.tail_adapter import TailAdapterInstance
-from app.adapters.metadata_adapter import MetadataAdapterInstance
+from app.adapters.metadata_adapter import MetadataAdapter
 
 # Initialize TailAdapter once when the API starts
 TailAdapterInstance.initialize()
@@ -46,6 +46,11 @@ def get_tail_adapter():
 
 def get_metadata_adapter():
     """
-    Injects the initialized MetadataAdapter singleton into FastAPI endpoints.
+    Lazily injects the MetadataAdapter singleton into FastAPI endpoints.
     """
-    return MetadataAdapterInstance
+    uri = os.getenv("GRAPHDB_URI")
+    user = os.getenv("GRAPHDB_USERNAME")
+    password = os.getenv("GRAPHDB_PASSWORD")
+
+    # Use MetadataAdapter's singleton pattern
+    return MetadataAdapter.get_instance(uri=uri, user=user, password=password)

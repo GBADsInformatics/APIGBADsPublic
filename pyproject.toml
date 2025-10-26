@@ -12,6 +12,8 @@ disable = [
     "W0613",  # unused-argument
     "E1101",  # no-member
     "R0903",  # too-few-public-methods
+    "R0902",  # too-many-instance-attributes
+    "W0201",  # attribute-defined-outside-init
 ]
 ignore = ["env"]  # Ignore the virtual environment folder
 
