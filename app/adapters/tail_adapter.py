@@ -1,10 +1,10 @@
 import os
 import csv
+import logging
+import datetime
 import spacy
 import numpy as np
-import logging
 import pytz
-import datetime
 import nltk
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
@@ -166,6 +166,7 @@ class TailAdapter:
         self._initialized = False
 
     def initialize(self):
+        """Initializes the NLP serarch TailAdapter"""
         # Download NLTK data
         nltk.download("stopwords", quiet=True)
         nltk.download("punkt_tab", quiet=True)

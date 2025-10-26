@@ -1,6 +1,5 @@
-import os
-from neo4j import GraphDatabase
 import atexit
+from neo4j import GraphDatabase
 
 
 class Metadata:
@@ -356,12 +355,3 @@ class MetadataAdapter:
     def get_dataset_license(self, name: str):
         """Proxy to Metadata.get_dataset_license()."""
         return self.driver.get_dataset_license(name)
-
-
-MetadataAdapterInstance = MetadataAdapter(
-    uri=os.getenv("GRAPHDB_URI"),
-    user=os.getenv("GRAPHDB_USERNAME"),
-    password=os.getenv("GRAPHDB_PASSWORD"),
-)
-
-atexit.register(MetadataAdapterInstance.close)
