@@ -12,6 +12,13 @@ disable = [
     "W0613",  # unused-argument
     "E1101",  # no-member
     "R0903",  # too-few-public-methods
+    "R0902",  # too-many-instance-attributes
+    "W0201",  # attribute-defined-outside-init
+    "W0718",  # broad-exception-caught
+    "R0904",  # too-many-public-methods
+    "W0107",  # unnecessary-pass
 ]
+ignore = ["env"]  # Ignore the virtual environment folder
+
 [tool.pytest.ini_options]
 addopts = "-v"

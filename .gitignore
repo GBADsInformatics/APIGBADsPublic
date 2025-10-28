@@ -10,3 +10,5 @@ key.conf
 **/__pycache__
 **/.vscode
 easy_export.bat
+requirements/glove.6B.50d.txt
+**/.zip
