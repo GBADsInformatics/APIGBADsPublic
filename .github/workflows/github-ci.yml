@@ -38,6 +38,9 @@ jobs:
         S3USERKEY=${{ secrets.S3_USER_KEY }},
         S3USERSECRET=${{ secrets.S3_USER_SECRET }},
         S3USERREGION=${{ secrets.S3_USER_REGION }},
+        GRAPHDBURI=${{ secrets.GRAPHDB_URI }},
+        GRAPHDBUSERNAME=${{ secrets.GRAPHDB_USERNAME }},
+        GRAPHDBPASSWORD=${{ secrets.GRAPHDB_PASSWORD }},
         DpmAuthentication=${{ secrets.DPM_AUTH_TOKEN }}
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
