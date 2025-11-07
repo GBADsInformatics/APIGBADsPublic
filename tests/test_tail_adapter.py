@@ -30,6 +30,16 @@ def tail_adapter_fixture(tmp_path):
     adapter = TailAdapter()
     adapter.nlp = spacy.blank("en")
 
+    # Prevent NLTK stopwords lookup failures in CI where NLTK data isn't installed.
+    # Monkey-patch stopwords.words to return an empty list for tests.
+    try:
+        import nltk
+        from nltk.corpus import stopwords as _stopwords
+        _stopwords.words = lambda lang: []  # type: ignore
+    except Exception:
+        # If nltk isn't available in the environment, tests can still proceed.
+        pass
+
     # Register and add a tiny test component that marks simple country tokens as GPE so
     # extract_country can pick them up without a full spaCy model.
     @Language.component("test_ents")
