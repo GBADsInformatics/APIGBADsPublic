@@ -7,7 +7,7 @@ from app.models.schemas import User, UserCreate, UserModel
 from app.adapters.rds_adapter import RDSAdapter
 from app.adapters.s3_adapter import S3Adapter
 from app.utils.dependencies import get_rds_adapter, get_s3_adapter
-from app.utils.auth import DPMTokenVerifier
+from app.utils.auth import CognitoVerifier
 
 router = APIRouter()
 
@@ -16,7 +16,7 @@ async def upload_file(
     bucket_name: str,
     object_name: str,
     file: UploadFile = File(...),
-    _: None = Depends(DPMTokenVerifier()),
+    _: None = Depends(CognitoVerifier(required_groups=["Admin"])),
     s3_adapter: S3Adapter = Depends(get_s3_adapter)
 ):
     """
@@ -26,7 +26,7 @@ async def upload_file(
         bucket_name (str): The name of the S3 bucket.
         object_name (str): The name of the object in S3.
         file (UploadFile): The file to upload.
-        token_verifier (DPMTokenVerifier): The token verifier instance (dependency injected).
+        token_verifier (CognitoVerifier): The token verifier instance (dependency injected).
 
     Returns:
         dict: Success message or raises HTTPException on failure.
@@ -42,7 +42,7 @@ async def upload_file(
 async def download_file(
     bucket_name: str,
     object_name: str,
-    _: None = Depends(DPMTokenVerifier()),
+    _: None = Depends(CognitoVerifier(required_groups=["Admin"])),
     s3_adapter: S3Adapter = Depends(get_s3_adapter)
 ):
     """
@@ -51,7 +51,7 @@ async def download_file(
     Args:
         bucket_name (str): The name of the S3 bucket.
         object_name (str): The name of the object in S3.
-        token_verifier (DPMTokenVerifier): The token verifier instance (dependency injected).
+        token_verifier (CognitoVerifier): The token verifier instance (dependency injected).
 
     Returns:
         StreamingResponse: A streaming response to download the file.
@@ -76,7 +76,7 @@ async def download_file(
 async def list_files(
     bucket_name: str,
     prefix: str = "",  # Optional folder path
-    _: None = Depends(DPMTokenVerifier()),
+    _: None = Depends(CognitoVerifier(required_groups=["Admin"])),
     s3_adapter: S3Adapter = Depends(get_s3_adapter)
 ):
     """
@@ -85,7 +85,7 @@ async def list_files(
     Args:
         bucket_name (str): The name of the S3 bucket.
         folder (str, optional): The folder path inside the bucket. Defaults to root ("").
-        token_verifier (DPMTokenVerifier): The token verifier instance (dependency injected).
+        token_verifier (CognitoVerifier): The token verifier instance (dependency injected).
 
     Returns:
         List[str]: A list of filenames in the specified folder.
@@ -101,7 +101,7 @@ async def list_files(
 async def delete_file(
     bucket_name: str,
     object_name: str,
-    _: None = Depends(DPMTokenVerifier()),
+    _: None = Depends(CognitoVerifier(required_groups=["Admin"])),
     s3_adapter: S3Adapter = Depends(get_s3_adapter)
 ):
     """
@@ -110,7 +110,7 @@ async def delete_file(
     Args:
         bucket_name (str): The name of the S3 bucket.
         object_name (str): The name of the object in S3.
-        token_verifier (DPMTokenVerifier): The token verifier instance (dependency injected).
+        token_verifier (CognitoVerifier): The token verifier instance (dependency injected).
 
     Returns:
         dict: Success message or raises HTTPException on failure.
@@ -124,7 +124,7 @@ async def delete_file(
 
 @router.get("/users", response_model=List[User])
 async def list_users(
-    _: None = Depends(DPMTokenVerifier()),
+    _: None = Depends(CognitoVerifier(required_groups=["Admin"])),
     rds_adapter: RDSAdapter = Depends(get_rds_adapter(
         db_name="dpm",
         db_host=os.getenv("RDS_HOST"),
@@ -155,7 +155,7 @@ async def list_users(
 @router.get("/user/{id}")
 async def get_user_data(
     id: int,
-    _: None = Depends(DPMTokenVerifier()),
+    _: None = Depends(CognitoVerifier(required_groups=["Admin"])),
     rds_adapter: RDSAdapter = Depends(get_rds_adapter(
         db_name="dpm",
         db_host=os.getenv("RDS_HOST"),
@@ -182,7 +182,7 @@ async def get_user_data(
 @router.post("/user", response_model=User)
 async def create_user(
     user: UserCreate,
-    _: None = Depends(DPMTokenVerifier()),
+    _: None = Depends(CognitoVerifier(required_groups=["Admin"])),
     rds_adapter: RDSAdapter = Depends(get_rds_adapter(
         db_name="dpm",
         db_host=os.getenv("RDS_HOST"),
@@ -232,7 +232,7 @@ async def create_user(
 @router.delete("/user/{id}")
 async def delete_user(
     id: int,
-    _: None = Depends(DPMTokenVerifier()),
+    _: None = Depends(CognitoVerifier(required_groups=["Admin"])),
     rds_adapter: RDSAdapter = Depends(get_rds_adapter(
         db_name="dpm",
         db_host=os.getenv("RDS_HOST"),
@@ -261,7 +261,7 @@ async def delete_user(
 @router.get("/models", response_model=List[UserModel])
 async def list_user_models(
     user_id: Optional[int] = Query(None, description="User ID - if not provided, lists models for all users."),
-    _: None = Depends(DPMTokenVerifier()),
+    _: None = Depends(CognitoVerifier(required_groups=["Admin"])),
     rds_adapter: RDSAdapter = Depends(get_rds_adapter(
         db_name="dpm",
         db_host=os.getenv("RDS_HOST"),

@@ -1,33 +1,168 @@
 import os
+from typing import Optional
 import jwt
+from jwt import PyJWKClient
 from fastapi import HTTPException, status, Security
-from fastapi.security.api_key import APIKeyHeader
+from fastapi.security import APIKeyHeader, OAuth2AuthorizationCodeBearer
+from app.models.auth import CognitoUser
 
 
-class DPMTokenVerifier:
+# Cognito OAuth2 scheme for Swagger UI
+COGNITO_REGION = os.getenv("COGNITO_REGION", "ca-central-1")
+COGNITO_DOMAIN = os.getenv("COGNITO_DOMAIN", "")
+COGNITO_AUTHORIZATION_URL = f"https://{COGNITO_DOMAIN}.auth.{COGNITO_REGION}.amazoncognito.com/oauth2/authorize"
+COGNITO_TOKEN_URL = f"https://{COGNITO_DOMAIN}.auth.{COGNITO_REGION}.amazoncognito.com/oauth2/token"
+
+oauth2_scheme = OAuth2AuthorizationCodeBearer(
+    authorizationUrl=COGNITO_AUTHORIZATION_URL,
+    tokenUrl=COGNITO_TOKEN_URL,
+    scopes={"openid": "OpenID", "email": "Email", "profile": "Profile"},
+    auto_error=False
+) if COGNITO_DOMAIN else None
+
+
+class CognitoVerifier:
     """
     FastAPI dependency for verifying Bearer tokens in API requests.
+    Supports both legacy hardcoded tokens and AWS Cognito JWTs.
     Usage: Add as a dependency to endpoints. Raises HTTPException if invalid.
     """
 
-    def __init__(self, expected_token: str = None):
-        # Load from env if not provided
+    def __init__(
+        self,
+        expected_token: str = None,
+        cognito_region: str = None,
+        cognito_user_pool_id: str = None,
+        accepted_client_ids: list = None,
+        required_groups: list = None,
+    ):
+        # Legacy token support (backwards compatibility)
         self.expected_token = expected_token or os.getenv("DPM_AUTH_TOKEN")
-        if not self.expected_token:
-            raise RuntimeError("DPM_AUTH_TOKEN environment variable not set")
 
-    def __call__(self, api_key: str = Security(APIKeyHeader(name="Authorization", auto_error=True))):
-        scheme, _, token = api_key.partition(" ")
-        if scheme.lower() != "bearer" or not token:
+        # Cognito configuration
+        self.cognito_region = cognito_region or os.getenv("COGNITO_REGION")
+        self.cognito_user_pool_id = cognito_user_pool_id or os.getenv("COGNITO_USER_POOL_ID")
+        self.accepted_client_ids = accepted_client_ids or (
+            os.getenv("COGNITO_CLIENT_IDS", "").split(",") if os.getenv("COGNITO_CLIENT_IDS") else []
+        )
+        self.required_groups = required_groups or []
+
+        # Initialize JWKS client if Cognito is configured
+        self.jwks_client = None
+        if self.cognito_region and self.cognito_user_pool_id:
+            jwks_url = f"https://cognito-idp.{self.cognito_region}.amazonaws.com/{self.cognito_user_pool_id}/.well-known/jwks.json"
+            self.jwks_client = PyJWKClient(jwks_url)
+            self.cognito_issuer = f"https://cognito-idp.{self.cognito_region}.amazonaws.com/{self.cognito_user_pool_id}"
+
+    def __call__(
+        self,
+        api_key: Optional[str] = Security(APIKeyHeader(name="Authorization", auto_error=False)),
+        oauth_token: Optional[str] = Security(oauth2_scheme) if oauth2_scheme else None
+    ):
+        # Try OAuth2 token first (from Swagger UI)
+        if oauth_token:
+            if self.jwks_client:
+                try:
+                    return self._verify_cognito_token(oauth_token)
+                except HTTPException:
+                    pass
+
+        # Try Bearer token from Authorization header
+        if api_key:
+            scheme, _, token = api_key.partition(" ")
+            if scheme.lower() == "bearer" and token:
+                # Try legacy token first (backwards compatibility)
+                if self.expected_token and token == self.expected_token:
+                    user = CognitoUser.from_legacy_token()
+                    if self.required_groups:
+                        # Legacy tokens have admin access, so they pass group checks
+                        pass
+                    return user
+
+                # Try Cognito JWT validation
+                if self.jwks_client:
+                    try:
+                        return self._verify_cognito_token(token)
+                    except HTTPException:
+                        pass
+
+        # No valid authentication found
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid or missing authentication",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+    def _verify_cognito_token(self, token: str) -> dict:
+        """
+        Verify a Cognito JWT token.
+        
+        Returns:
+            dict: Token payload with user information and groups
+        
+        Raises:
+            HTTPException: If token is invalid
+        """
+        try:
+            # Get the signing key from Cognito
+            signing_key = self.jwks_client.get_signing_key_from_jwt(token)
+
+            # Decode and verify the token
+            payload = jwt.decode(
+                token,
+                signing_key.key,
+                algorithms=["RS256"],
+                issuer=self.cognito_issuer,
+                options={"verify_aud": False}  # We'll verify client_id manually if needed
+            )
+
+            # Verify client_id if accepted_client_ids is configured
+            if self.accepted_client_ids:
+                token_client_id = payload.get("client_id") or payload.get("aud")
+                if token_client_id not in self.accepted_client_ids:
+                    raise HTTPException(
+                        status_code=status.HTTP_401_UNAUTHORIZED,
+                        detail="Token from unauthorized client"
+                    )
+
+            # Get user groups
+            user_groups = payload.get("cognito:groups", [])
+
+            # Check required groups if specified
+            if self.required_groups:
+                if not any(group in user_groups for group in self.required_groups):
+                    raise HTTPException(
+                        status_code=status.HTTP_403_FORBIDDEN,
+                        detail=f"User must be in one of these groups: {', '.join(self.required_groups)}"
+                    )
+
+            # Create CognitoUser instance
+            user = CognitoUser.from_cognito_payload(payload)
+
+            # Check required groups if specified
+            if self.required_groups and not any(group in user.groups for group in self.required_groups):
+                raise HTTPException(
+                    status_code=status.HTTP_403_FORBIDDEN,
+                    detail=f"User must be in one of these groups: {', '.join(self.required_groups)}"
+                )
+
+            return user
+
+        except jwt.ExpiredSignatureError as e:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Authorization header must be in 'Bearer <token>' format",
-            )
-        if token != self.expected_token:
+                detail="Token has expired"
+            ) from e
+        except jwt.InvalidTokenError as e:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Invalid or missing token",
-            )
+                detail=f"Invalid token: {str(e)}"
+            ) from e
+        except Exception as e:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail=f"Token verification failed: {str(e)}"
+            ) from e
 
 
 class SlackJWTVerifier:

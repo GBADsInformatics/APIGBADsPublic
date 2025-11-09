@@ -41,8 +41,14 @@ jobs:
         GRAPHDBURI=${{ secrets.GRAPHDB_URI }},
         GRAPHDBUSERNAME=${{ secrets.GRAPHDB_USERNAME }},
         GRAPHDBPASSWORD=${{ secrets.GRAPHDB_PASSWORD }},
+        COGNITOREGION=${{ secrets.COGNITO_REGION }},
+        COGNITOUSERPOOLID=${{ secrets.COGNITO_USER_POOL_ID }},
+        COGNITOCLIENTIDS=${{ secrets.COGNITO_CLIENT_IDS }},
+        COGNITODOMAIN=${{ secrets.COGNITO_DOMAIN }},
+        COGNITOCLIENTIDSWAGGER=${{ secrets.COGNITO_CLIENT_ID_SWAGGER }},
         DpmAuthentication=${{ secrets.DPM_AUTH_TOKEN }}
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
     with:
       stack-name: api-stack
+      AWS_REGION: ca-central-1
