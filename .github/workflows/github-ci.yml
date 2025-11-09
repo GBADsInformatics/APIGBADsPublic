@@ -43,7 +43,7 @@ jobs:
         GRAPHDBPASSWORD=${{ secrets.GRAPHDB_PASSWORD }},
         COGNITOREGION=${{ secrets.COGNITO_REGION }},
         COGNITOUSERPOOLID=${{ secrets.COGNITO_USER_POOL_ID }},
-        COGNITOCLIENTIDS=${{ secrets.COGNITO_CLIENT_IDS }},
+        COGNITOCLIENTIDS="${{ secrets.COGNITO_CLIENT_IDS }}",
         COGNITODOMAIN=${{ secrets.COGNITO_DOMAIN }},
         COGNITOCLIENTIDSWAGGER=${{ secrets.COGNITO_CLIENT_ID_SWAGGER }},
         DpmAuthentication=${{ secrets.DPM_AUTH_TOKEN }}
