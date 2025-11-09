@@ -16,7 +16,7 @@ async def upload_file(
     bucket_name: str,
     object_name: str,
     file: UploadFile = File(...),
-    _: None = Depends(CognitoVerifier()),
+    _: None = Depends(CognitoVerifier(required_groups=["Admin"])),
     s3_adapter: S3Adapter = Depends(get_s3_adapter)
 ):
     """
@@ -42,7 +42,7 @@ async def upload_file(
 async def download_file(
     bucket_name: str,
     object_name: str,
-    _: None = Depends(CognitoVerifier()),
+    _: None = Depends(CognitoVerifier(required_groups=["Admin"])),
     s3_adapter: S3Adapter = Depends(get_s3_adapter)
 ):
     """
@@ -76,7 +76,7 @@ async def download_file(
 async def list_files(
     bucket_name: str,
     prefix: str = "",  # Optional folder path
-    _: None = Depends(CognitoVerifier()),
+    _: None = Depends(CognitoVerifier(required_groups=["Admin"])),
     s3_adapter: S3Adapter = Depends(get_s3_adapter)
 ):
     """
@@ -101,7 +101,7 @@ async def list_files(
 async def delete_file(
     bucket_name: str,
     object_name: str,
-    _: None = Depends(CognitoVerifier()),
+    _: None = Depends(CognitoVerifier(required_groups=["Admin"])),
     s3_adapter: S3Adapter = Depends(get_s3_adapter)
 ):
     """
@@ -124,7 +124,7 @@ async def delete_file(
 
 @router.get("/users", response_model=List[User])
 async def list_users(
-    _: None = Depends(CognitoVerifier()),
+    _: None = Depends(CognitoVerifier(required_groups=["Admin"])),
     rds_adapter: RDSAdapter = Depends(get_rds_adapter(
         db_name="dpm",
         db_host=os.getenv("RDS_HOST"),
@@ -155,7 +155,7 @@ async def list_users(
 @router.get("/user/{id}")
 async def get_user_data(
     id: int,
-    _: None = Depends(CognitoVerifier()),
+    _: None = Depends(CognitoVerifier(required_groups=["Admin"])),
     rds_adapter: RDSAdapter = Depends(get_rds_adapter(
         db_name="dpm",
         db_host=os.getenv("RDS_HOST"),
@@ -182,7 +182,7 @@ async def get_user_data(
 @router.post("/user", response_model=User)
 async def create_user(
     user: UserCreate,
-    _: None = Depends(CognitoVerifier()),
+    _: None = Depends(CognitoVerifier(required_groups=["Admin"])),
     rds_adapter: RDSAdapter = Depends(get_rds_adapter(
         db_name="dpm",
         db_host=os.getenv("RDS_HOST"),
@@ -232,7 +232,7 @@ async def create_user(
 @router.delete("/user/{id}")
 async def delete_user(
     id: int,
-    _: None = Depends(CognitoVerifier()),
+    _: None = Depends(CognitoVerifier(required_groups=["Admin"])),
     rds_adapter: RDSAdapter = Depends(get_rds_adapter(
         db_name="dpm",
         db_host=os.getenv("RDS_HOST"),
@@ -261,7 +261,7 @@ async def delete_user(
 @router.get("/models", response_model=List[UserModel])
 async def list_user_models(
     user_id: Optional[int] = Query(None, description="User ID - if not provided, lists models for all users."),
-    _: None = Depends(CognitoVerifier()),
+    _: None = Depends(CognitoVerifier(required_groups=["Admin"])),
     rds_adapter: RDSAdapter = Depends(get_rds_adapter(
         db_name="dpm",
         db_host=os.getenv("RDS_HOST"),
