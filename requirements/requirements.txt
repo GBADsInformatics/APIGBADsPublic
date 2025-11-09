@@ -3,6 +3,7 @@ psycopg
 uvicorn
 boto3
 PyJWT
+cryptography
 python-multipart
 spacy
 pytz
