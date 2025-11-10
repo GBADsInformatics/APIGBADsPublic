@@ -75,6 +75,7 @@ if COGNITO_DOMAIN and COGNITO_CLIENT_ID_SWAGGER:
 app = FastAPI(
     docs_url=f"{BASE_URL}/docs",
     openapi_url=f"{BASE_URL}/openapi.json",
+    oauth2_redirect_url=f"{BASE_URL}/docs/oauth2-redirect",
     title="GBADs Public API",
     description="This is our API for accessing GBADs public database tables and related functionalities.\n\n" \
                 "See the [GBADs Knowledge Engine](https://gbadske.org) for more information about the project.\n\n" \
