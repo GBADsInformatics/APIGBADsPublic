@@ -1,5 +1,6 @@
 import os
 from typing import Optional
+from urllib.parse import urlparse
 import jwt
 from jwt import PyJWKClient
 from fastapi import HTTPException, status, Security
@@ -12,7 +13,7 @@ COGNITO_REGION = os.getenv("COGNITO_REGION", "ca-central-1")
 COGNITO_DOMAIN = os.getenv("COGNITO_DOMAIN", "")
 
 
-def _cognito_host(domain: str, region: str) -> str:
+def get_cognito_host(domain: str, region: str) -> str:
     """
     Resolve a host for Cognito OAuth URLs. Accepts either:
       - a Cognito domain prefix (e.g. "myapp-dev-auth") or
@@ -22,7 +23,6 @@ def _cognito_host(domain: str, region: str) -> str:
         return ""
     # If a full URL was provided, extract netloc
     try:
-        from urllib.parse import urlparse
         parsed = urlparse(domain)
         if parsed.netloc:
             return parsed.netloc
@@ -37,7 +37,7 @@ def _cognito_host(domain: str, region: str) -> str:
     return f"{domain}.auth.{region}.amazoncognito.com"
 
 
-COGNITO_HOST = _cognito_host(COGNITO_DOMAIN, COGNITO_REGION)
+COGNITO_HOST = get_cognito_host(COGNITO_DOMAIN, COGNITO_REGION)
 COGNITO_AUTHORIZATION_URL = f"https://{COGNITO_HOST}/oauth2/authorize" if COGNITO_HOST else ""
 COGNITO_TOKEN_URL = f"https://{COGNITO_HOST}/oauth2/token" if COGNITO_HOST else ""
 

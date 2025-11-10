@@ -23,6 +23,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import OAuth2AuthorizationCodeBearer
 from fastapi.openapi.utils import get_openapi
 from app.api.v1 import auth_endpoints, dpm_endpoints, engine_endpoints, comments_endpoints, tail_endpoints, metadata_endpoints
+from app.utils.auth import get_cognito_host
 
 BASE_URL = os.environ.get("BASE_URL", "")
 
@@ -31,37 +32,7 @@ COGNITO_REGION = os.environ.get("COGNITO_REGION", "us-east-1")
 COGNITO_USER_POOL_ID = os.environ.get("COGNITO_USER_POOL_ID", "")
 COGNITO_DOMAIN = os.environ.get("COGNITO_DOMAIN", "")  # e.g., "myapp-dev-auth"
 COGNITO_CLIENT_ID_SWAGGER = os.environ.get("COGNITO_CLIENT_ID_SWAGGER", "")
-
-
-# Helper to determine the Cognito host to use for OAuth URLs.
-def _cognito_host(domain: str, region: str) -> str:
-    """
-    Accepts either a Cognito domain prefix (e.g. "myapp-dev-auth") or a full custom domain
-    (e.g. "login.gbadske.org" or "https://login.gbadske.org") and returns the host to use
-    in OAuth URLs.
-    """
-    if not domain:
-        return ""
-    # If user provided a full URL, extract the host
-    try:
-        from urllib.parse import urlparse
-        parsed = urlparse(domain)
-        if parsed.netloc:
-            return parsed.netloc
-    except Exception:
-        # fall back to simple checks below
-        pass
-
-    # If domain contains a dot, treat it as a full domain (custom domain)
-    if "." in domain:
-        return domain
-
-    # Otherwise assume it's a Cognito user pool domain prefix
-    return f"{domain}.auth.{region}.amazoncognito.com"
-
-
-# Build Cognito URLs
-COGNITO_HOST = _cognito_host(COGNITO_DOMAIN, COGNITO_REGION)
+COGNITO_HOST = get_cognito_host(COGNITO_DOMAIN, COGNITO_REGION)
 COGNITO_AUTHORIZATION_URL = f"https://{COGNITO_HOST}/oauth2/authorize" if COGNITO_HOST else ""
 COGNITO_TOKEN_URL = f"https://{COGNITO_HOST}/oauth2/token" if COGNITO_HOST else ""
 
