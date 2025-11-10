@@ -10,8 +10,36 @@ from app.models.auth import CognitoUser
 # Cognito OAuth2 scheme for Swagger UI
 COGNITO_REGION = os.getenv("COGNITO_REGION", "ca-central-1")
 COGNITO_DOMAIN = os.getenv("COGNITO_DOMAIN", "")
-COGNITO_AUTHORIZATION_URL = f"https://{COGNITO_DOMAIN}.auth.{COGNITO_REGION}.amazoncognito.com/oauth2/authorize"
-COGNITO_TOKEN_URL = f"https://{COGNITO_DOMAIN}.auth.{COGNITO_REGION}.amazoncognito.com/oauth2/token"
+
+
+def _cognito_host(domain: str, region: str) -> str:
+    """
+    Resolve a host for Cognito OAuth URLs. Accepts either:
+      - a Cognito domain prefix (e.g. "myapp-dev-auth") or
+      - a custom domain (e.g. "login.gbadske.org" or "https://login.gbadske.org").
+    """
+    if not domain:
+        return ""
+    # If a full URL was provided, extract netloc
+    try:
+        from urllib.parse import urlparse
+        parsed = urlparse(domain)
+        if parsed.netloc:
+            return parsed.netloc
+    except Exception:
+        pass
+
+    # If domain contains a dot, assume it's a custom domain
+    if "." in domain:
+        return domain
+
+    # Otherwise it's a Cognito domain prefix
+    return f"{domain}.auth.{region}.amazoncognito.com"
+
+
+COGNITO_HOST = _cognito_host(COGNITO_DOMAIN, COGNITO_REGION)
+COGNITO_AUTHORIZATION_URL = f"https://{COGNITO_HOST}/oauth2/authorize" if COGNITO_HOST else ""
+COGNITO_TOKEN_URL = f"https://{COGNITO_HOST}/oauth2/token" if COGNITO_HOST else ""
 
 oauth2_scheme = OAuth2AuthorizationCodeBearer(
     authorizationUrl=COGNITO_AUTHORIZATION_URL,
