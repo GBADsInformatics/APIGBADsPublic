@@ -23,6 +23,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import OAuth2AuthorizationCodeBearer
 from fastapi.openapi.utils import get_openapi
 from app.api.v1 import auth_endpoints, dpm_endpoints, engine_endpoints, comments_endpoints, tail_endpoints, metadata_endpoints
+from app.utils.auth import get_cognito_host
 
 BASE_URL = os.environ.get("BASE_URL", "")
 
@@ -31,10 +32,9 @@ COGNITO_REGION = os.environ.get("COGNITO_REGION", "us-east-1")
 COGNITO_USER_POOL_ID = os.environ.get("COGNITO_USER_POOL_ID", "")
 COGNITO_DOMAIN = os.environ.get("COGNITO_DOMAIN", "")  # e.g., "myapp-dev-auth"
 COGNITO_CLIENT_ID_SWAGGER = os.environ.get("COGNITO_CLIENT_ID_SWAGGER", "")
-
-# Build Cognito URLs
-COGNITO_AUTHORIZATION_URL = f"https://{COGNITO_DOMAIN}.auth.{COGNITO_REGION}.amazoncognito.com/oauth2/authorize"
-COGNITO_TOKEN_URL = f"https://{COGNITO_DOMAIN}.auth.{COGNITO_REGION}.amazoncognito.com/oauth2/token"
+COGNITO_HOST = get_cognito_host(COGNITO_DOMAIN, COGNITO_REGION)
+COGNITO_AUTHORIZATION_URL = f"https://{COGNITO_HOST}/oauth2/authorize" if COGNITO_HOST else ""
+COGNITO_TOKEN_URL = f"https://{COGNITO_HOST}/oauth2/token" if COGNITO_HOST else ""
 
 
 class SuppressRootLoggingMiddleware:
