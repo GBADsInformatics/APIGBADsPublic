@@ -42,7 +42,6 @@ def get_species(metadata=Depends(get_metadata_adapter)):
     """
     return metadata.get_species()
 
-
 @router.get("/datasets")
 def get_datasets(
     countries: str = "*",
@@ -61,12 +60,26 @@ def get_datasets(
     Returns:
         List of dataset metadata entries.
     """
+    # Normalize input: if None or empty, set to '*'
+    countries = countries if countries not in (None, "") else "*"
+    species = species if species not in (None, "") else "*"
+
+    # If both are '*', return all datasets
     if countries == "*" and species == "*":
         return metadata.get_all_metadata()
 
     try:
-        countries_list = countries.split(",")
-        species_list = species.split(",")
+        # Split and capitalize list items if not '*'
+        if countries != "*":
+            countries_list = [c.strip().capitalize() for c in countries.split(",") if c.strip()]
+        else:
+            countries_list = "*"
+
+        if species != "*":
+            species_list = [s.strip().capitalize() for s in species.split(",") if s.strip()]
+        else:
+            species_list = "*"
+
         return metadata.get_datasets(countries_list, species_list)
     except Exception:
         return {"error": "Please provide valid countries and species."}
