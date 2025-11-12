@@ -61,3 +61,57 @@ def format_table(data, column_names=None, html_title=None, html_subtitle=None, f
                 html += "<tr>" + "".join(f"<td>{cell}</td>" for cell in row) + "</tr>"
         html += "</table></body></html>"
         return HTMLResponse(html)
+
+def get_datasets_query():
+    return """
+    MATCH (d:Dataset)-[:HAS_COLUMN]->(pv:PropertyValue)-[:HAS_VALUE]->(v:Value)
+    WHERE (pv.name = 'country' AND v.name IN $countries)
+    WITH d
+    MATCH (d)-[:HAS_COLUMN]->(ps:PropertyValue)-[:HAS_VALUE]->(s:Value)
+    WHERE (ps.name = 'species' AND s.name IN $species)
+    WITH d
+    MATCH (d)-[]-(di:DataDownload)
+    WITH d, COLLECT(DISTINCT di) AS DataDownload
+    WITH d, DataDownload
+    MATCH (d)-[:HAS_PROVIDER]->(provider:Organization)
+    RETURN DISTINCT d.name AS name, d.license AS license, d.sourceTable AS sourceTable, d.species AS species, d.temporalCoverage AS temporalCoverage, d.description AS description, d.spatialCoverage AS spatialCoverage, DataDownload, provider
+    """
+
+def get_countries_query():
+    return """
+        MATCH (d:Dataset)-[:HAS_COUNTRY]->(v:Value)
+        RETURN DISTINCT v.name AS country
+        ORDER BY country
+    """
+
+def get_species_query():
+    return """
+        MATCH (d:Dataset)-[:HAS_COLUMN]-(pv:PropertyValue {name: 'species'})-[]-(v:Value)
+        RETURN DISTINCT v.name AS species
+        ORDER BY species
+    """
+
+def get_metadata_table():
+    return """
+        MATCH (d:Dataset {sourceTable: $table_name})-[]-(di:DataDownload)
+        WITH d, COLLECT(DISTINCT di.contentUrl) AS contentUrl
+        RETURN DISTINCT d.name AS name, d.license AS license, d.sourceTable AS sourceTable, d.temporalCoverage AS temporalCoverage, d.description AS description, d.spatialCoverage AS spatialCoverage, contentUrl
+    """
+
+def get_datasets_country_species():
+    return """
+        MATCH (d:Dataset)-[:HAS_COLUMN]->(pv:PropertyValue)-[:HAS_VALUE]->(v:Value)
+        WHERE (pv.name = 'country' AND v.name IN $countries)
+        OR (pv.name = 'species' AND v.name IN $species)
+        WITH d
+        RETURN DISTINCT d.name AS name
+    """
+
+def get_all_metadata():
+    return """
+        MATCH (d:Dataset)
+        WITH d
+        MATCH (d)-[]-(di:DataDownload)
+        WITH d, COLLECT(DISTINCT di.contentUrl) AS contentUrl
+        RETURN DISTINCT d.name AS name, d.license AS license, d.sourceTable AS sourceTable, d.temporalCoverage AS temporalCoverage, d.description AS description, d.spatialCoverage AS spatialCoverage, contentUrl
+    """
