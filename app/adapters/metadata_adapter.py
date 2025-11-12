@@ -1,7 +1,6 @@
 import atexit
 from neo4j import GraphDatabase
 from app.utils.helpers import (
-    get_datasets_country_species,
     get_datasets_query,
     get_countries_query,
     get_species_query,
@@ -60,7 +59,7 @@ class Metadata:
     # -------------------------------------------------------------------------
     # DATASETS
     # -------------------------------------------------------------------------
-    def get_datasets(self, countries=None, species=None):
+    def get_datasets(self, countries, species):
         """
         Retrieve datasets based on provided countries and species.
         If none provided, returns all datasets.
@@ -70,9 +69,15 @@ class Metadata:
 
     @staticmethod
     def _return_datasets(tx, countries, species):
-        """Retrieve all available datasets."""
-        result = tx.run(get_datasets_query(), countries=countries, species=species)
-        return [record.data() for record in result]
+        """Retrieve all available names country and species."""
+        # Get dataset info
+        datasets = []
+        with tx.session() as session:
+            result = session.run(get_datasets_query(), countries = countries, species = species)
+            for record in result:
+                datasets.append(record.data())
+            tx.close()
+            return datasets
 
     # -------------------------------------------------------------------------
     # METADATA (TABLE + ALL)
@@ -97,20 +102,6 @@ class Metadata:
     def _return_all_metadata(tx):
         """Retrieve all available metadata."""
         result = tx.run(get_all_metadata())
-        return [record.data() for record in result]
-
-    # -------------------------------------------------------------------------
-    # COUNTRY + SPECIES FILTERED NAMES
-    # -------------------------------------------------------------------------
-    def get_names_country_species(self, countries, species):
-        """Retrieve dataset names for specific countries and species."""
-        with self.driver.session() as session:
-            return session.execute_read(self._return_names_country_species, countries, species)
-
-    @staticmethod
-    def _return_names_country_species(tx, countries, species):
-        """Retrieve all available names country and species."""
-        result = tx.run(get_datasets_country_species(), countries=countries, species=species)
         return [record.data() for record in result]
 
 
@@ -173,7 +164,3 @@ class MetadataAdapter:
     def get_all_metadata(self):
         """Retrieve all available metadata."""
         return self.driver.get_all_metadata()
-
-    def get_names_country_species(self, countries, species):
-        """Retrieve all available country and species."""
-        return self.driver.get_names_country_species(countries, species)
