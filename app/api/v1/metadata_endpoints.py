@@ -1,19 +1,23 @@
-from fastapi import APIRouter, Depends, BackgroundTasks
-from fastapi.responses import HTMLResponse, FileResponse
-from pathlib import Path
-from datetime import date
 import json
 import os
+from pathlib import Path
+from datetime import date
+
+from fastapi import APIRouter, Depends, BackgroundTasks
+from fastapi.responses import FileResponse
+
 from app.utils.dependencies import get_metadata_adapter
 
 router = APIRouter()
 
 
 def remove_file(path: str):
+    """Remove a file at the given path."""
     os.unlink(path)
 
+
 @router.get("/countries")
-def countries(metadata=Depends(get_metadata_adapter)):
+def get_countries(metadata=Depends(get_metadata_adapter)):
     """
     Retrieve a list of all countries available in the metadata repository.
 
@@ -27,7 +31,7 @@ def countries(metadata=Depends(get_metadata_adapter)):
 
 
 @router.get("/species")
-def species(metadata=Depends(get_metadata_adapter)):
+def get_species(metadata=Depends(get_metadata_adapter)):
     """
     Retrieve a list of all species available in the metadata repository.
 
@@ -41,7 +45,7 @@ def species(metadata=Depends(get_metadata_adapter)):
 
 
 @router.get("/datasets")
-def datasets(
+def get_datasets(
     countries: str = "*",
     species: str = "*",
     metadata=Depends(get_metadata_adapter),
@@ -70,7 +74,7 @@ def datasets(
 
 
 @router.get("/tbl_metadata")
-def metadata_tbl_name(
+def get_metadata_table(
     table_name: str,
     format: str = "json",
     background_tasks: BackgroundTasks = None,
@@ -94,9 +98,10 @@ def metadata_tbl_name(
         today = date.today()
         date_str = today.strftime("%Y%m%d")
         file_name = f"{date_str}_{table_name}.json"
-        with open(file_name, "w") as f:
+        with open(file_name, "w", encoding="utf-8") as f:
             json.dump(data, f, indent=4)
-        background_tasks.add_task(remove_file, file_name)
+        if background_tasks:
+            background_tasks.add_task(remove_file, file_name)
         return FileResponse(file_name, filename=file_name)
 
     elif format == "json":

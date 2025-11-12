@@ -38,6 +38,7 @@ class Metadata:
 
     @staticmethod
     def _return_countries(tx):
+        """Retrieve all available countries."""
         result = tx.run(get_countries_query())
         countries = [record["country"] for record in result]
         return {"countries": countries}
@@ -69,6 +70,7 @@ class Metadata:
 
     @staticmethod
     def _return_datasets(tx, countries, species):
+        """Retrieve all available datasets."""
         result = tx.run(get_datasets_query(), countries=countries, species=species)
         return [record.data() for record in result]
 
@@ -82,6 +84,7 @@ class Metadata:
 
     @staticmethod
     def _return_metadata_table(tx, table_name):
+        """Retrieve all available metadatatables."""
         result = tx.run(get_metadata_table(), table_name=table_name)
         return [record.data() for record in result]
 
@@ -92,6 +95,7 @@ class Metadata:
 
     @staticmethod
     def _return_all_metadata(tx):
+        """Retrieve all available metadata."""
         result = tx.run(get_all_metadata())
         return [record.data() for record in result]
 
@@ -105,6 +109,7 @@ class Metadata:
 
     @staticmethod
     def _return_names_country_species(tx, countries, species):
+        """Retrieve all available names country and species."""
         result = tx.run(get_datasets_country_species(), countries=countries, species=species)
         return [record.data() for record in result]
 
@@ -150,19 +155,25 @@ class MetadataAdapter:
     # PROXY METHODS
     # -------------------------------------------------------------------------
     def get_countries(self):
+        """Retrieve all available countries."""
         return self.driver.get_countries()
 
     def get_species(self):
+        """Retrieve all available species."""
         return self.driver.get_species()
 
     def get_datasets(self, countries=None, species=None):
+        """Retrieve all available datasets."""
         return self.driver.get_datasets(countries, species)
 
     def get_metadata_table(self, table_name):
+        """Retrieve all available metadata from the table."""
         return self.driver.get_metadata_table(table_name)
 
     def get_all_metadata(self):
+        """Retrieve all available metadata."""
         return self.driver.get_all_metadata()
 
     def get_names_country_species(self, countries, species):
+        """Retrieve all available country and species."""
         return self.driver.get_names_country_species(countries, species)
