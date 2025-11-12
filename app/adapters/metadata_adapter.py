@@ -1,5 +1,13 @@
 import atexit
 from neo4j import GraphDatabase
+from app.utils.helpers import (
+    get_datasets_country_species,
+    get_datasets_query,
+    get_countries_query,
+    get_species_query,
+    get_metadata_table,
+    get_all_metadata,
+)
 
 
 class Metadata:
@@ -17,278 +25,105 @@ class Metadata:
 
     def close(self):
         """Close the Neo4j driver connection."""
-        self.driver.close()
+        if self.driver:
+            self.driver.close()
 
-    def get_datasets(self):
-        """
-        Retrieve all dataset names.
-
-        :return: A dictionary containing dataset names.
-        """
+    # -------------------------------------------------------------------------
+    # COUNTRIES
+    # -------------------------------------------------------------------------
+    def get_countries(self):
+        """Retrieve all available countries."""
         with self.driver.session() as session:
-            result = session.execute_read(self.return_datasets)
-            return result
+            return session.execute_read(self._return_countries)
 
-    def return_datasets(self, tx):
-        """
-        Transaction function for retrieving datasets.
+    @staticmethod
+    def _return_countries(tx):
+        """Retrieve all available countries."""
+        result = tx.run(get_countries_query())
+        countries = [record["country"] for record in result]
+        return {"countries": countries}
 
-        :param tx: Neo4j transaction object
-        :return: A dictionary containing dataset names.
-        """
-        dataset = []
-        query = (
-            "MATCH (n:dataset) "
-            "RETURN n.name AS name"
-        )
-        result = tx.run(query)
-        for line in result:
-            dataset.append(line["name"])
-        return {"name": dataset}
-
+    # -------------------------------------------------------------------------
+    # SPECIES
+    # -------------------------------------------------------------------------
     def get_species(self):
-        """
-        Retrieve all species (categories).
+        """Retrieve all species."""
+        with self.driver.session() as session:
+            return session.execute_read(self._return_species)
 
-        :return: A dictionary containing species names.
+    @staticmethod
+    def _return_species(tx):
+        result = tx.run(get_species_query())
+        species = [record["species"] for record in result]
+        return {"species": species}
+
+    # -------------------------------------------------------------------------
+    # DATASETS
+    # -------------------------------------------------------------------------
+    def get_datasets(self, countries=None, species=None):
+        """
+        Retrieve datasets based on provided countries and species.
+        If none provided, returns all datasets.
         """
         with self.driver.session() as session:
-            result = session.execute_read(self.return_species)
-            return result
+            return session.execute_read(self._return_datasets, countries, species)
 
-    def return_species(self, tx):
-        """
-        Transaction function for retrieving species categories.
+    @staticmethod
+    def _return_datasets(tx, countries, species):
+        """Retrieve all available datasets."""
+        result = tx.run(get_datasets_query(), countries=countries, species=species)
+        return [record.data() for record in result]
 
-        :param tx: Neo4j transaction object
-        :return: A dictionary containing species names.
-        """
-        species = []
-        query = (
-            "MATCH (n:Category) "
-            "RETURN n.name AS name"
-        )
-        result = tx.run(query)
-        for line in result:
-            species.append(line["name"])
-        return {"name": species}
-
-    def get_species_datasets(self, category):
-        """
-        Retrieve datasets related to a given species/category.
-
-        :param category: Species name or partial string
-        :return: A dictionary containing dataset metadata entries.
-        """
+    # -------------------------------------------------------------------------
+    # METADATA (TABLE + ALL)
+    # -------------------------------------------------------------------------
+    def get_metadata_table(self, table_name):
+        """Retrieve metadata for a specific table."""
         with self.driver.session() as session:
-            datasets = session.execute_read(self.return_species_datasets, category)
-        return datasets
+            return session.execute_read(self._return_metadata_table, table_name)
 
-    def return_species_datasets(self, tx, category):
-        """
-        Transaction function for retrieving species datasets.
+    @staticmethod
+    def _return_metadata_table(tx, table_name):
+        """Retrieve all available metadatatables."""
+        result = tx.run(get_metadata_table(), table_name=table_name)
+        return [record.data() for record in result]
 
-        :param tx: Neo4j transaction object
-        :param category: Species name or partial string
-        :return: A dictionary of dataset metadata objects.
-        """
-        query = (
-            "MATCH (n:Category)-[]-()-[]-(d:dataset) "
-            "WHERE toLower(n.name) CONTAINS toLower($category) "
-            "RETURN DISTINCT(d) AS data"
-        )
-        result = tx.run(query, category=category)
-        return {"dataset": [self.serialize_metadata(line) for line in result]}
-
-    def get_dataset_metadata(self, name):
-        """
-        Retrieve detailed metadata for a dataset.
-
-        :param name: Dataset name
-        :return: A dictionary of dataset metadata fields.
-        """
+    def get_all_metadata(self):
+        """Retrieve metadata for all datasets."""
         with self.driver.session() as session:
-            metadata = session.execute_read(self.return_dataset_metadata, name)
-        return metadata
+            return session.execute_read(self._return_all_metadata)
 
-    def return_dataset_metadata(self, tx, name):
-        """
-        Transaction function for dataset metadata retrieval.
+    @staticmethod
+    def _return_all_metadata(tx):
+        """Retrieve all available metadata."""
+        result = tx.run(get_all_metadata())
+        return [record.data() for record in result]
 
-        :param tx: Neo4j transaction object
-        :param name: Dataset name
-        :return: A dictionary containing metadata details.
-        """
-        query = (
-            "MATCH (n:dataset {name: $name}) "
-            "RETURN n AS data"
-        )
-        result = tx.run(query, name=name)
-        for record in result:
-            return self.serialize_metadata(record)
-
-    def get_dataset_distribution(self, name):
-        """
-        Retrieve distribution information for a dataset.
-
-        :param name: Dataset name
-        :return: A dictionary with distribution fields.
-        """
+    # -------------------------------------------------------------------------
+    # COUNTRY + SPECIES FILTERED NAMES
+    # -------------------------------------------------------------------------
+    def get_names_country_species(self, countries, species):
+        """Retrieve dataset names for specific countries and species."""
         with self.driver.session() as session:
-            distribution = session.execute_read(self.return_dataset_distribution, name)
-        return distribution
+            return session.execute_read(self._return_names_country_species, countries, species)
 
-    def return_dataset_distribution(self, tx, name):
-        """
-        Transaction function for retrieving dataset distribution.
-
-        :param tx: Neo4j transaction object
-        :param name: Dataset name
-        :return: A dictionary of distribution details.
-        """
-        query = (
-            "MATCH (n:dataset {name: $name})-[]-(d:distribution) "
-            "RETURN d AS distribution"
-        )
-        result = tx.run(query, name=name)
-        for record in result:
-            return {
-                "name": record["distribution"]["name"],
-                "identifier": record["distribution"]["identifier"],
-                "description": record["distribution"]["description"],
-                "fileFormat": record["distribution"]["fileFormat"],
-                "contentSize": record["distribution"]["contentSize"],
-            }
-
-    def get_dataset_publisher(self, name):
-        """
-        Retrieve publisher information for a dataset.
-
-        :param name: Dataset name
-        :return: A dictionary with publisher details.
-        """
-        with self.driver.session() as session:
-            publisher = session.execute_read(self.return_dataset_publisher, name)
-        return publisher
-
-    def return_dataset_publisher(self, tx, name):
-        """Transaction function for retrieving publisher data."""
-        query = (
-            "MATCH (n:dataset {name: $name})-[]-(p:publisher) "
-            "RETURN p AS publisher"
-        )
-        result = tx.run(query, name=name)
-        for record in result:
-            return {"name": record["publisher"]["name"]}
-
-    def get_dataset_contact_point(self, name):
-        """Retrieve contact point details."""
-        with self.driver.session() as session:
-            contact_point = session.execute_read(self.return_dataset_contact_point, name)
-        return contact_point
-
-    def return_dataset_contact_point(self, tx, name):
-        """Transaction function for retrieving dataset contact point."""
-        query = (
-            "MATCH (n:dataset {name: $name})-[]-(cp:contactPoint) "
-            "RETURN cp AS contactPoint"
-        )
-        result = tx.run(query, name=name)
-        for record in result:
-            return {"name": record["contactPoint"]["name"]}
-
-    def get_dataset_provider(self, name):
-        """Retrieve provider information for a dataset."""
-        with self.driver.session() as session:
-            provider = session.execute_read(self.return_dataset_provider, name)
-        return provider
-
-    def return_dataset_provider(self, tx, name):
-        """Transaction function for retrieving dataset provider."""
-        query = (
-            "MATCH (n:dataset {name: $name})-[]-(p:provider) "
-            "RETURN p AS provider"
-        )
-        result = tx.run(query, name=name)
-        for record in result:
-            return {"name": record["provider"]["name"]}
-
-    def get_dataset_license(self, name):
-        """Retrieve license info for a dataset."""
-        with self.driver.session() as session:
-            license_data = session.execute_read(self.return_dataset_license, name)
-        return license_data
-
-    def return_dataset_license(self, tx, name):
-        """Transaction function for retrieving dataset license."""
-        query = (
-            "MATCH (n:dataset {name: $name})-[]-(l:license) "
-            "RETURN l AS license"
-        )
-        result = tx.run(query, name=name)
-        for record in result:
-            return {"name": record["license"]["name"], "url": record["license"]["url"]}
-
-    def get_country_datasets(self, country):
-        """
-        Retrieve datasets associated with a given country.
-
-        :param country: Country name or partial string
-        :return: A dictionary of dataset metadata entries.
-        """
-        with self.driver.session() as session:
-            metadata = session.execute_read(self.return_country_dataset, country)
-            return metadata
-
-    def serialize_metadata(self, record):
-        """
-        Convert Neo4j dataset metadata records to a dictionary.
-
-        :param record: Neo4j result record
-        :return: Dictionary representation of dataset metadata.
-        """
-        return {
-            "name": record["data"]["name"],
-            "datePublished": record["data"]["datePublished"],
-            "datasetTimeInterval": record["data"]["datasetTimeInterval"],
-            "citation": record["data"]["citation"],
-            "description": record["data"]["description"],
-            "id": record["data"]["id"],
-        }
-
-    def return_country_dataset(self, tx, country):
-        """
-        Transaction function for retrieving country-specific datasets.
-
-        :param tx: Neo4j transaction object
-        :param country: Country name or partial string
-        :return: A dictionary of dataset metadata entries.
-        """
-        query = (
-            "MATCH (n:Area)-[]-()-[]-()-[]-(d:dataset) "
-            "WHERE toLower(n.name) CONTAINS toLower($name) "
-            "RETURN d AS data"
-        )
-        try:
-            result = tx.run(query, name=country)
-            return {"dataset": [self.serialize_metadata(line) for line in result]}
-        except Exception:
-            return "Provide a valid country."
+    @staticmethod
+    def _return_names_country_species(tx, countries, species):
+        """Retrieve all available names country and species."""
+        result = tx.run(get_datasets_country_species(), countries=countries, species=species)
+        return [record.data() for record in result]
 
 
+# =============================================================================
+# ADAPTER SINGLETON
+# =============================================================================
 class MetadataAdapter:
     """Singleton wrapper providing easy access to metadata operations."""
 
     _instance = None
 
     def __init__(self, uri: str, user: str, password: str):
-        """
-        Initialize the Metadata adapter wrapper.
-
-        :param uri: Neo4j database URI
-        :param user: Username for authentication
-        :param password: Password for authentication
-        """
+        """Initialize the Metadata adapter wrapper."""
         self.driver = Metadata(uri, user, password)
 
     def close(self):
@@ -316,42 +151,29 @@ class MetadataAdapter:
         """No-op for compatibility with DI frameworks."""
         pass
 
-    def get_datasets(self):
-        """Proxy to Metadata.get_datasets()."""
-        return self.driver.get_datasets()
+    # -------------------------------------------------------------------------
+    # PROXY METHODS
+    # -------------------------------------------------------------------------
+    def get_countries(self):
+        """Retrieve all available countries."""
+        return self.driver.get_countries()
 
     def get_species(self):
-        """Proxy to Metadata.get_species()."""
+        """Retrieve all available species."""
         return self.driver.get_species()
 
-    def get_species_datasets(self, species: str):
-        """Proxy to Metadata.get_species_datasets()."""
-        return self.driver.get_species_datasets(species)
+    def get_datasets(self, countries=None, species=None):
+        """Retrieve all available datasets."""
+        return self.driver.get_datasets(countries, species)
 
-    def get_country_datasets(self, country: str):
-        """Proxy to Metadata.get_country_datasets()."""
-        return self.driver.get_country_datasets(country)
+    def get_metadata_table(self, table_name):
+        """Retrieve all available metadata from the table."""
+        return self.driver.get_metadata_table(table_name)
 
-    def get_dataset_metadata(self, name: str):
-        """Proxy to Metadata.get_dataset_metadata()."""
-        return self.driver.get_dataset_metadata(name)
+    def get_all_metadata(self):
+        """Retrieve all available metadata."""
+        return self.driver.get_all_metadata()
 
-    def get_dataset_distribution(self, name: str):
-        """Proxy to Metadata.get_dataset_distribution()."""
-        return self.driver.get_dataset_distribution(name)
-
-    def get_dataset_publisher(self, name: str):
-        """Proxy to Metadata.get_dataset_publisher()."""
-        return self.driver.get_dataset_publisher(name)
-
-    def get_dataset_contact_point(self, name: str):
-        """Proxy to Metadata.get_dataset_contact_point()."""
-        return self.driver.get_dataset_contact_point(name)
-
-    def get_dataset_provider(self, name: str):
-        """Proxy to Metadata.get_dataset_provider()."""
-        return self.driver.get_dataset_provider(name)
-
-    def get_dataset_license(self, name: str):
-        """Proxy to Metadata.get_dataset_license()."""
-        return self.driver.get_dataset_license(name)
+    def get_names_country_species(self, countries, species):
+        """Retrieve all available country and species."""
+        return self.driver.get_names_country_species(countries, species)
