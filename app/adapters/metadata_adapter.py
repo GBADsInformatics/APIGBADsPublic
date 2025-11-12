@@ -1,7 +1,6 @@
 import atexit
 from neo4j import GraphDatabase
 from app.utils.helpers import (
-    get_datasets_country_species,
     get_datasets_query,
     get_countries_query,
     get_species_query,
@@ -71,14 +70,14 @@ class Metadata:
     @staticmethod
     def _return_datasets(tx, countries, species):
         """Retrieve all available names country and species."""
-        # Get dataset info 
+        # Get dataset info
         datasets = []
         with tx.session() as session:
             result = session.run(get_datasets_query(), countries = countries, species = species)
             for record in result:
                 datasets.append(record.data())
             tx.close()
-            return(datasets)
+            return datasets
 
     # -------------------------------------------------------------------------
     # METADATA (TABLE + ALL)

@@ -122,20 +122,20 @@ def get_metadata_table():
         RETURN DISTINCT d.name AS name, d.license AS license, d.sourceTable AS sourceTable, d.temporalCoverage AS temporalCoverage, d.description AS description, d.spatialCoverage AS spatialCoverage, contentUrl
     """
 
-def get_datasets_country_species():
-    """
-    Neo4j query to retrieve datasets filtered by a list of countries or species.
+# def get_datasets_country_species():
+#     """
+#     Neo4j query to retrieve datasets filtered by a list of countries or species.
 
-    Returns:
-        str: Cypher query string.
-    """
-    return """
-        MATCH (d:Dataset)-[:HAS_COLUMN]->(pv:PropertyValue)-[:HAS_VALUE]->(v:Value)
-        WHERE (pv.name = 'country' AND v.name IN $countries)
-        OR (pv.name = 'species' AND v.name IN $species)
-        WITH d
-        RETURN DISTINCT d.name AS name
-    """
+#     Returns:
+#         str: Cypher query string.
+#     """
+#     return """
+#         MATCH (d:Dataset)-[:HAS_COLUMN]->(pv:PropertyValue)-[:HAS_VALUE]->(v:Value)
+#         WHERE (pv.name = 'country' AND v.name IN $countries)
+#         OR (pv.name = 'species' AND v.name IN $species)
+#         WITH d
+#         RETURN DISTINCT d.name AS name
+#     """
 
 def get_all_metadata():
     """
