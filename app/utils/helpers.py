@@ -63,7 +63,12 @@ def format_table(data, column_names=None, html_title=None, html_subtitle=None, f
         return HTMLResponse(html)
 
 def get_datasets_query():
-    # Query used with neo4j to pull datasets
+    """
+    Neo4j query to retrieve datasets filtered by countries and species.
+
+    Returns:
+        str: Cypher query string.
+    """
     return """
     MATCH (d:Dataset)-[:HAS_COLUMN]->(pv:PropertyValue)-[:HAS_VALUE]->(v:Value)
     WHERE (pv.name = 'country' AND v.name IN $countries)
@@ -79,7 +84,12 @@ def get_datasets_query():
     """
 
 def get_countries_query():
-    # Query used with neo4j to pull countries data
+    """
+    Neo4j query to retrieve all distinct countries from datasets.
+
+    Returns:
+        str: Cypher query string.
+    """
     return """
         MATCH (d:Dataset)-[:HAS_COUNTRY]->(v:Value)
         RETURN DISTINCT v.name AS country
@@ -87,7 +97,12 @@ def get_countries_query():
     """
 
 def get_species_query():
-    # Query used with neo4j to pull species data
+    """
+    Neo4j query to retrieve all distinct species from datasets.
+
+    Returns:
+        str: Cypher query string.
+    """
     return """
         MATCH (d:Dataset)-[:HAS_COLUMN]-(pv:PropertyValue {name: 'species'})-[]-(v:Value)
         RETURN DISTINCT v.name AS species
@@ -95,7 +110,12 @@ def get_species_query():
     """
 
 def get_metadata_table():
-    # Query used with neo4j to pull metadata table data
+    """
+    Neo4j query to retrieve metadata for a specific dataset table.
+
+    Returns:
+        str: Cypher query string.
+    """
     return """
         MATCH (d:Dataset {sourceTable: $table_name})-[]-(di:DataDownload)
         WITH d, COLLECT(DISTINCT di.contentUrl) AS contentUrl
@@ -103,7 +123,12 @@ def get_metadata_table():
     """
 
 def get_datasets_country_species():
-    # Query used with neo4j to pull countries and species data
+    """
+    Neo4j query to retrieve datasets filtered by a list of countries or species.
+
+    Returns:
+        str: Cypher query string.
+    """
     return """
         MATCH (d:Dataset)-[:HAS_COLUMN]->(pv:PropertyValue)-[:HAS_VALUE]->(v:Value)
         WHERE (pv.name = 'country' AND v.name IN $countries)
@@ -113,7 +138,12 @@ def get_datasets_country_species():
     """
 
 def get_all_metadata():
-    # Query used with neo4j to pull all metadata
+    """
+    Neo4j query to retrieve metadata for all datasets.
+
+    Returns:
+        str: Cypher query string.
+    """
     return """
         MATCH (d:Dataset)
         WITH d
