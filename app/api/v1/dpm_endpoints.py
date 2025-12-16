@@ -435,13 +435,13 @@ async def merge_user(
     2. Update user_id in metadata JSON files in the inputs bucket before uploading
     3. Delete old database rows with the old user_id (new rows already created by Lambda)
     4. Delete old S3 files after successful migration
-    
+
     Only admins can perform this operation.
-    
+
     Args:
         existing_user_id: The current user ID to migrate from
         new_user_id: The new user ID to migrate to
-        
+
     Returns:
         dict: Summary of the migration operation
     """
@@ -451,31 +451,31 @@ async def merge_user(
             "gbads-modelling-outputs",
             "gbads-modelling-storage"
         ]
-        
+
         migration_summary = {
             "s3_files_copied": 0,
             "metadata_files_updated": 0,
             "database_rows_deleted": 0,
             "errors": []
         }
-        
+
         # Step 1: Copy S3 files (non-metadata files first, metadata files will be handled separately)
         # This will trigger Lambda functions that create new database rows with the new user_id
         metadata_files = []
-        
+
         for bucket_name in buckets:
             old_prefix = f"dpm/user_{existing_user_id}/"
             new_prefix = f"dpm/user_{new_user_id}/"
-            
+
             try:
                 # List all files in the old user folder
                 files = s3_adapter.list_files(bucket_name=bucket_name, prefix=old_prefix)
-                
+
                 for file_key in files:
                     try:
                         # Calculate new file key
                         new_file_key = file_key.replace(old_prefix, new_prefix, 1)
-                        
+
                         # Skip metadata files for now, we'll handle them after
                         if bucket_name == "gbads-modelling-inputs" and file_key.endswith("_metadata.json"):
                             metadata_files.append((bucket_name, file_key, new_file_key))
@@ -483,45 +483,45 @@ async def merge_user(
                             # For non-metadata files, just copy
                             s3_adapter.copy(bucket_name, file_key, new_file_key)
                             migration_summary["s3_files_copied"] += 1
-                        
+
                     except Exception as file_error:
                         error_msg = f"Error copying {file_key}: {str(file_error)}"
                         migration_summary["errors"].append(error_msg)
-                        
+
             except Exception as bucket_error:
                 error_msg = f"Error accessing bucket {bucket_name}: {str(bucket_error)}"
                 migration_summary["errors"].append(error_msg)
-        
+
         # Step 2: Update and upload metadata files with new user_id
         # This will trigger Lambda to create rows with correct user_id in metadata
         for bucket_name, file_key, new_file_key in metadata_files:
             try:
                 # Download the metadata file
                 file_content = s3_adapter.download(bucket_name, file_key)
-                
+
                 if file_content:
                     # Parse JSON
                     metadata = json.loads(file_content.decode('utf-8'))
-                    
+
                     # Update user_id (convert to string as per requirements)
                     metadata['user_id'] = new_user_id
-                    
+
                     # Upload updated metadata to new location
                     updated_content = json.dumps(metadata, indent=2).encode('utf-8')
                     s3_adapter.upload(bucket_name, new_file_key, fileobj=io.BytesIO(updated_content))
-                    
+
                     migration_summary["metadata_files_updated"] += 1
                     migration_summary["s3_files_copied"] += 1
                 else:
                     raise Exception(f"Failed to download metadata file: {file_key}")
-                    
+
             except Exception as file_error:
                 error_msg = f"Error updating metadata {file_key}: {str(file_error)}"
                 migration_summary["errors"].append(error_msg)
-        
+
         # Step 3: Delete old database rows (Lambda already created new ones with new user_id)
         # We delete old rows instead of updating to avoid conflicts
-        
+
         # Delete from user_models2 table
         try:
             rows_affected = rds_adapter.delete(
@@ -533,7 +533,7 @@ async def merge_user(
         except Exception as db_error:
             error_msg = f"Error deleting old rows from user_models2: {str(db_error)}"
             migration_summary["errors"].append(error_msg)
-        
+
         # Delete from user_dashboards2 table
         try:
             rows_affected = rds_adapter.delete(
@@ -545,26 +545,26 @@ async def merge_user(
         except Exception as db_error:
             error_msg = f"Error deleting old rows from user_dashboards2: {str(db_error)}"
             migration_summary["errors"].append(error_msg)
-        
+
         # Step 3: Delete old S3 files (only if no errors in migration)
         if not migration_summary["errors"]:
             for bucket_name in buckets:
                 old_prefix = f"dpm/user_{existing_user_id}/"
-                
+
                 try:
                     files = s3_adapter.list_files(bucket_name=bucket_name, prefix=old_prefix)
-                    
+
                     for file_key in files:
                         try:
                             s3_adapter.delete(bucket_name, file_key)
                         except Exception as delete_error:
                             error_msg = f"Error deleting old file {file_key}: {str(delete_error)}"
                             migration_summary["errors"].append(error_msg)
-                            
+
                 except Exception as bucket_error:
                     error_msg = f"Error cleaning up bucket {bucket_name}: {str(bucket_error)}"
                     migration_summary["errors"].append(error_msg)
-        
+
         # Return summary
         if migration_summary["errors"]:
             return {
@@ -582,6 +582,6 @@ async def merge_user(
                           f"and deleted {migration_summary['database_rows_deleted']} old database rows.",
                 "summary": migration_summary
             }
-            
+
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error during user migration: {str(e)}") from e

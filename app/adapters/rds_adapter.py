@@ -200,14 +200,14 @@ class RDSAdapter:
         query = f"UPDATE {table_name} SET {set_clause}"
         if where:
             query += f" WHERE {where}"
-        
+
         # Combine set_params and where_params
         all_params = set_params + where_params
-        
+
         with self.connection.cursor() as cursor:
             cursor.execute(query, all_params)
             self.connection.commit()
             updated_count = cursor.rowcount
-        
+
         logger.info("Updated %d rows in table %s", updated_count, table_name)
         return updated_count
