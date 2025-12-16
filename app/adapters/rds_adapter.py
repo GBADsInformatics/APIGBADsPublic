@@ -186,3 +186,28 @@ class RDSAdapter:
             deleted_count = cursor.rowcount
         logger.info("Deleted %d rows from table %s where %s", deleted_count, table, where)
         return deleted_count
+
+    def update(self, table_name: str, set_clause: str, set_params: tuple, where: str = "", where_params: tuple = ()) -> int:
+        """
+        Update rows in the specified table.
+        :param table_name: Name of the table to update
+        :param set_clause: SET clause with placeholders (e.g., "user_id = %s, name = %s")
+        :param set_params: Tuple of parameters for the SET clause
+        :param where: Optional WHERE clause (e.g., "user_id = %s")
+        :param where_params: Tuple of parameters for the WHERE clause
+        :return: Number of rows updated
+        """
+        query = f"UPDATE {table_name} SET {set_clause}"
+        if where:
+            query += f" WHERE {where}"
+
+        # Combine set_params and where_params
+        all_params = set_params + where_params
+
+        with self.connection.cursor() as cursor:
+            cursor.execute(query, all_params)
+            self.connection.commit()
+            updated_count = cursor.rowcount
+
+        logger.info("Updated %d rows in table %s", updated_count, table_name)
+        return updated_count

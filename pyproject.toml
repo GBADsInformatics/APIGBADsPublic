@@ -17,6 +17,9 @@ disable = [
     "W0718",  # broad-exception-caught
     "R0904",  # too-many-public-methods
     "W0107",  # unnecessary-pass
+    "R1702",  # too-many-nested-blocks
+    "R0915",  # too-many-statements
+    "W0719",  # except-pass
 ]
 ignore = ["env"]  # Ignore the virtual environment folder
 

@@ -5,6 +5,7 @@ from app.adapters.s3_adapter import S3Adapter
 from app.adapters.rds_adapter import RDSAdapter
 from app.adapters.tail_adapter import TailAdapterInstance
 from app.adapters.metadata_adapter import MetadataAdapter
+from app.adapters.cognito_adapter import CognitoAdapter
 
 # Initialize TailAdapter once when the API starts
 TailAdapterInstance.initialize()
@@ -21,6 +22,24 @@ def get_s3_adapter() -> S3Adapter:
         access_key=access_key,
         secret_key=secret_key,
         region=region
+    )
+
+
+def get_cognito_adapter() -> CognitoAdapter:
+    """
+    Injects the CognitoAdapter dependency into FastAPI endpoints.
+    """
+    region = os.getenv("COGNITO_REGION")
+    user_pool_id = os.getenv("COGNITO_USER_POOL_ID")
+    # Optionally use separate credentials for Cognito, otherwise uses default AWS credentials
+    access_key = os.getenv("COGNITO_ACCESS_KEY_ID")
+    secret_key = os.getenv("COGNITO_SECRET_ACCESS_KEY")
+
+    return CognitoAdapter(
+        region=region,
+        user_pool_id=user_pool_id,
+        access_key=access_key,
+        secret_key=secret_key
     )
 
 
