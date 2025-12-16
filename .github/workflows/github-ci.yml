@@ -46,6 +46,8 @@ jobs:
         COGNITOCLIENTIDS="${{ secrets.COGNITO_CLIENT_IDS }}",
         COGNITODOMAIN=${{ secrets.COGNITO_DOMAIN }},
         COGNITOCLIENTIDSWAGGER=${{ secrets.COGNITO_CLIENT_ID_SWAGGER }},
+        COGNITOACCESSKEYID=${{ secrets.COGNITO_ACCESS_KEY_ID }},
+        COGNITOSECRETACCESSKEY=${{ secrets.COGNITO_SECRET_ACCESS_KEY }},
         DpmAuthentication=${{ secrets.DPM_AUTH_TOKEN }}
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
